@@ -1,0 +1,891 @@
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>一起聽見</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700;900&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  /* Layout concept: the canvas IS the page — a single morning-forest stage where animals
+     queue and take turns at the podium; HUD chrome (brand, filters, camera, CTA) floats
+     over it in glass, and the questionnaire / card are modals over the same scene. */
+  :root{
+    --sky-top:#FBF8F1; --sky-bottom:#E9F1E7;
+    --ink:#2E3524; --ink-soft:#5B6350;
+    --sage:#56724C; --sage-deep:#3F5938;
+    --gold:#C99A42;
+    --cream:#FBF8F1;
+    --glass-bg:rgba(255,255,255,0.62); --glass-br:rgba(255,255,255,0.85); --glass-strong:rgba(255,255,255,0.82);
+    --olive-panel:rgba(38,40,26,0.56); --olive-panel-soft:rgba(38,40,26,0.34);
+    --line:rgba(46,53,36,0.14);
+    --shadow:0 18px 46px rgba(40,48,28,0.16);
+    --radius-lg:26px; --radius-md:18px; --radius-sm:12px;
+    --font-display:'Noto Serif TC','Songti TC',serif;
+    --font-body:'Noto Sans TC','PingFang TC',sans-serif;
+    --font-label:'Jost','Noto Sans TC',sans-serif;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --glass-bg:rgba(28,33,22,0.58); --glass-br:rgba(255,255,255,0.14); --glass-strong:rgba(28,33,22,0.82);
+      --line:rgba(241,238,228,0.16); --ink:#F1EEE4; --ink-soft:#C7CBBC; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --glass-bg:rgba(28,33,22,0.58); --glass-br:rgba(255,255,255,0.14); --glass-strong:rgba(28,33,22,0.82);
+    --line:rgba(241,238,228,0.16); --ink:#F1EEE4; --ink-soft:#C7CBBC; color-scheme: dark;
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; overflow:hidden; position:relative; background:var(--sky-bottom);
+    font-family:var(--font-body); color:var(--ink); -webkit-font-smoothing:antialiased; -webkit-tap-highlight-color:transparent;
+  }
+  [hidden]{display:none!important}
+  img{max-width:100%}
+  h1,h2,h3{font-family:var(--font-display); font-weight:700; text-wrap:balance; margin:0}
+  .eyebrow{font-family:var(--font-label); font-weight:400; letter-spacing:.2em; text-transform:uppercase; font-size:10.5px; color:var(--sage-deep); opacity:.9}
+  :root[data-theme="dark"] .eyebrow{color:#A9C49A}
+  @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .eyebrow{color:#A9C49A} }
+
+  #stage-canvas{ position:absolute; inset:0; width:100%; height:100%; z-index:1; cursor:grab; touch-action:none; }
+  #stage-canvas:active{ cursor:grabbing; }
+
+  .glass{ background:var(--glass-bg); border:1px solid var(--glass-br); border-radius:var(--radius-lg); box-shadow:var(--shadow); backdrop-filter:blur(18px) saturate(1.1); -webkit-backdrop-filter:blur(18px) saturate(1.1); }
+
+  .btn{ font-family:var(--font-body); font-weight:700; font-size:14.5px; letter-spacing:.01em; border:none; border-radius:999px; padding:13px 24px; cursor:pointer; background:var(--sage); color:#fff; box-shadow:0 10px 24px rgba(63,89,56,0.32); transition:transform .15s ease; display:inline-flex; align-items:center; justify-content:center; gap:8px; }
+  .btn:active{ transform:scale(.97) }
+  .btn.secondary{ background:var(--glass-strong); color:var(--sage-deep); box-shadow:none; border:1px solid var(--line); }
+  .btn.ghost{ background:transparent; color:var(--ink-soft); box-shadow:none; border:1px solid var(--line); font-weight:500; }
+  .btn[disabled]{ opacity:.4; cursor:not-allowed; box-shadow:none }
+  .btn-row{ display:flex; gap:10px; width:100% }
+  .btn-row .btn{ flex:1 }
+  #cta-speak{ flex:1; width:100% }
+  .pillbtn{ font-family:var(--font-body); font-size:12.5px; font-weight:700; padding:9px 15px; border-radius:999px; background:var(--glass-strong); border:1px solid var(--glass-br); color:var(--sage-deep); cursor:pointer; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
+  .pillbtn.active{ background:var(--sage); color:#fff; border-color:var(--sage) }
+  :root[data-theme="dark"] .pillbtn{ color:var(--ink) }
+
+  /* ---------------- HUD ---------------- */
+  .hud{ position:absolute; inset:0; z-index:10; pointer-events:none; display:flex; flex-direction:column; justify-content:space-between;
+    padding:max(14px, env(safe-area-inset-top,0px)) max(14px, env(safe-area-inset-right,0px)) max(14px, env(safe-area-inset-bottom,0px)) max(14px, env(safe-area-inset-left,0px)); }
+  .hud-header{ pointer-events:auto; max-width:720px; margin:0 auto; width:100%; display:flex; flex-direction:column; gap:10px; }
+  .brand-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .brand-pill{ display:flex; align-items:center; gap:10px; background:var(--glass-strong); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); padding:7px 16px 7px 8px; border-radius:999px; border:1px solid var(--glass-br); box-shadow:0 4px 16px rgba(40,48,28,0.08); }
+  .brand-mark{ width:30px; height:30px; border-radius:50%; background:var(--sage); color:#fff; display:flex; align-items:center; justify-content:center; font-size:15px; flex:none; }
+  .brand-titles{ display:flex; flex-direction:column; line-height:1.2 }
+  .brand-titles b{ font-family:var(--font-display); font-size:14px; font-weight:700 }
+  .brand-titles span{ font-family:var(--font-label); font-size:8.5px; letter-spacing:.16em; color:var(--ink-soft) }
+  :root[data-theme="dark"] .brand-titles b{ color:var(--ink) }
+
+  .filter-toggle{ flex:none; font-family:var(--font-body); font-size:12.5px; font-weight:700; padding:9px 14px; border-radius:999px; background:var(--glass-strong); border:1px solid var(--glass-br); color:var(--sage-deep); cursor:pointer; backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); box-shadow:0 4px 16px rgba(40,48,28,0.08); display:inline-flex; align-items:center; gap:5px; }
+  :root[data-theme="dark"] .filter-toggle{ color:var(--ink) }
+  .filter-toggle.active{ background:var(--sage); color:#fff; border-color:var(--sage) }
+  .filter-panel{ max-height:0; overflow:hidden; transition:max-height .25s ease; }
+  .filter-panel.open{ max-height:60px; }
+  .filter-scroll{ overflow-x:auto; scrollbar-width:none; -ms-overflow-style:none; padding:6px 1px 1px; }
+  .filter-scroll::-webkit-scrollbar{ display:none }
+  .filter-bar{ display:flex; gap:7px; }
+
+  .drag-hint{ position:absolute; bottom:calc(78px + env(safe-area-inset-bottom,0px)); left:50%; transform:translateX(-50%); background:var(--glass-strong); border:1px solid var(--glass-br); padding:6px 15px; border-radius:999px; font-size:11px; font-weight:600; color:var(--ink-soft); pointer-events:none; opacity:.95; transition:opacity .4s ease; white-space:nowrap; }
+  .drag-hint.hide{ opacity:0; }
+
+  .hud-footer{ pointer-events:auto; max-width:720px; margin:0 auto; width:100%; display:flex; align-items:center; gap:10px; }
+
+  /* ---------------- billboard ---------------- */
+  .billboard-wrap{ position:absolute; top:112px; left:50%; transform:translateX(-50%); width:92%; max-width:420px; z-index:9; pointer-events:auto; }
+  .billboard{ padding:18px 18px 16px; display:flex; flex-direction:column; gap:9px; position:relative; }
+  .b-progress-track{ position:absolute; top:0; left:16px; right:16px; height:3px; background:rgba(46,53,36,0.1); border-radius:2px; overflow:hidden; }
+  .b-progress-bar{ height:100%; width:100%; background:linear-gradient(90deg, var(--gold), var(--sage)); transform-origin:left center; }
+  .b-meta{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:3px; }
+  .b-speaker{ display:flex; align-items:center; gap:7px; min-width:0 }
+  .b-role{ font-size:10.5px; font-weight:800; letter-spacing:.03em; padding:3px 10px; border-radius:999px; background:var(--olive-panel); color:var(--cream); flex:none; }
+  .b-species{ font-size:12.5px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .b-topic{ font-size:10.5px; font-weight:700; color:var(--sage-deep); background:rgba(86,114,76,0.14); padding:3px 9px; border-radius:999px; white-space:nowrap; flex:none; }
+  .b-faith{ background:linear-gradient(135deg, #fef7ed, #faedd9); border:1px solid rgba(201,154,66,0.35); border-radius:12px; padding:9px 12px; }
+  :root[data-theme="dark"] .b-faith{ background:linear-gradient(135deg, rgba(201,154,66,0.18), rgba(201,154,66,0.1)); }
+  .b-faith-h{ font-size:10px; font-weight:800; letter-spacing:.05em; color:var(--gold) }
+  .b-faith-c{ font-family:var(--font-display); font-size:14.5px; font-weight:700; line-height:1.5; color:#3d240c; margin-top:2px; }
+  :root[data-theme="dark"] .b-faith-c{ color:#F1EEE4 }
+
+  /* ---------------- modal shells ---------------- */
+  .overlay{ position:fixed; inset:0; background:rgba(28,30,20,0.52); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); z-index:100; display:none; align-items:center; justify-content:center; padding:18px; }
+  .overlay.open{ display:flex }
+  .modal{ background:var(--sky-top); border:1px solid var(--glass-br); border-radius:28px; width:100%; max-width:460px; max-height:92vh; display:flex; flex-direction:column; box-shadow:0 26px 60px rgba(0,0,0,0.3); overflow:hidden; animation:modalUp .3s cubic-bezier(.16,1,.3,1); }
+  :root[data-theme="dark"] .modal{ background:#1C2117 }
+  @keyframes modalUp{ from{opacity:0; transform:translateY(20px) scale(.97)} to{opacity:1; transform:translateY(0) scale(1)} }
+  .modal-head{ padding:20px 22px 14px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+  .modal-step-label{ font-family:var(--font-label); font-size:10.5px; font-weight:500; letter-spacing:.16em; color:var(--gold); text-transform:uppercase; margin-bottom:4px; }
+  .modal-title{ font-size:18px; line-height:1.4; }
+  .modal-close{ width:32px; height:32px; border-radius:50%; background:var(--olive-panel-soft); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink); flex:none; font-size:15px; }
+  .modal-body{ padding:20px 22px; overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:16px; }
+  .modal-foot{ padding:14px 22px calc(16px + env(safe-area-inset-bottom,0px)); border-top:1px solid var(--line); display:flex; gap:10px; }
+
+  /* ---------------- quiz fields (same model as before) ---------------- */
+  .note{ font-size:12px; color:var(--ink-soft); line-height:1.7; background:var(--olive-panel-soft); border-radius:var(--radius-sm); padding:9px 11px; }
+  .note b{ color:var(--gold); font-weight:700 }
+  .role-list{ display:flex; flex-direction:column; gap:8px; }
+  .role-opt{ display:flex; align-items:center; gap:12px; padding:10px 12px; border:1.5px solid var(--line); border-radius:14px; background:var(--glass-strong); cursor:pointer; }
+  .role-opt img{ width:44px; height:44px; object-fit:contain; flex:none; }
+  .role-opt .ri{ display:flex; flex-direction:column; min-width:0; }
+  .role-opt .rn{ font-size:13.5px; font-weight:800; display:flex; align-items:center; gap:6px; }
+  .role-opt .ra{ font-size:11px; color:var(--sage-deep); font-weight:700; }
+  .role-opt .rd{ font-size:10.5px; color:var(--ink-soft); margin-top:1px; }
+  .role-opt.sel{ border-color:var(--sage); background:rgba(86,114,76,0.16); }
+
+  .field{ display:flex; flex-direction:column; gap:6px; }
+  .field label{ font-size:13px; font-weight:700; }
+  .field input, .field textarea{ font-family:var(--font-body); font-size:15px; color:var(--ink); border:1.5px solid var(--line); border-radius:var(--radius-sm); padding:12px 13px; background:rgba(255,255,255,0.7); outline:none; resize:none; }
+  :root[data-theme="dark"] .field input, :root[data-theme="dark"] .field textarea{ background:rgba(255,255,255,0.06); color:var(--ink) }
+  .field input:focus, .field textarea:focus{ border-color:var(--sage) }
+  .counter{ font-size:11px; color:var(--ink-soft); text-align:right; font-family:var(--font-label); }
+
+  .topic-list{ display:flex; flex-direction:column; gap:7px; }
+  .topic-row{ display:flex; align-items:center; gap:10px; padding:11px 13px; border-radius:var(--radius-md); background:var(--glass-strong); border:1.5px solid var(--line); cursor:pointer; }
+  .topic-row .ico{ font-size:18px }
+  .topic-row .tx{ flex:1; font-weight:600; font-size:13.5px }
+  .topic-row.sel{ border-color:var(--sage); background:rgba(86,114,76,0.16) }
+  .sub-wrap{ display:flex; flex-direction:column; gap:7px; animation:slide .3s ease; }
+  @keyframes slide{ from{opacity:0; transform:translateY(-6px)} to{opacity:1; transform:translateY(0)} }
+  .sub-opt{ padding:10px 13px; border-radius:var(--radius-sm); background:rgba(255,255,255,0.5); border:1.5px solid var(--line); font-size:13.5px; cursor:pointer; display:flex; align-items:center; gap:9px; }
+  :root[data-theme="dark"] .sub-opt{ background:rgba(255,255,255,0.05) }
+  .sub-opt .dot{ width:15px; height:15px; border-radius:50%; border:1.5px solid var(--ink-soft); flex:none; }
+  .sub-opt.sel{ border-color:var(--sage); background:rgba(86,114,76,0.14); font-weight:700; }
+  .sub-opt.sel .dot{ border-color:var(--sage); background:var(--sage); box-shadow:inset 0 0 0 3px rgba(255,255,255,0.75); }
+
+  /* ---------------- UGC card modal ---------------- */
+  .cardshell{ width:100%; max-width:280px; aspect-ratio:9/16; border-radius:22px; overflow:hidden; box-shadow:0 20px 50px rgba(30,36,22,0.35); position:relative; background:#eee; margin:0 auto; }
+  .cardshell canvas{ width:100%; height:100%; display:block }
+  .reveal{ padding:4px 2px 0; display:flex; flex-direction:column; gap:8px; }
+  .reveal .tag{ align-self:flex-start; font-family:var(--font-label); letter-spacing:.14em; font-size:10px; background:var(--olive-panel); color:var(--cream); padding:4px 11px; border-radius:999px; }
+  .reveal h3{ font-size:16.5px }
+  .reveal p{ font-size:12.5px; line-height:1.8; color:var(--ink-soft); margin:0; }
+  .reveal p.quote{ color:var(--ink); background:var(--olive-panel-soft); padding:9px 11px; border-radius:var(--radius-sm); border-left:3px solid var(--gold); }
+
+  /* ---------------- toast ---------------- */
+  .toast{ position:fixed; bottom:calc(22px + env(safe-area-inset-bottom,0px)); left:50%; transform:translateX(-50%) translateY(80px); background:var(--olive-panel); color:#fff; padding:10px 22px; border-radius:999px; font-size:13px; font-weight:700; opacity:0; transition:all .3s cubic-bezier(.16,1,.3,1); z-index:200; pointer-events:none; box-shadow:0 10px 24px rgba(0,0,0,.2); }
+  .toast.show{ transform:translateX(-50%) translateY(0); opacity:1; }
+
+  @media (max-width:480px){
+    .billboard-wrap{ top:100px }
+    .billboard{ padding:14px 14px 13px }
+  }
+</style>
+
+<canvas id="stage-canvas"></canvas>
+
+<div class="hud">
+  <header class="hud-header">
+    <div class="brand-row">
+      <div class="brand-pill">
+        <div class="brand-mark">🌿</div>
+        <div class="brand-titles"><b>一起聽見</b><span>THE HOPE CHURCH · PHASE 1</span></div>
+      </div>
+      <button type="button" class="filter-toggle" id="filter-toggle">🔍 篩選議題</button>
+    </div>
+    <div class="filter-panel" id="filter-panel">
+      <div class="filter-scroll"><div class="filter-bar" id="filter-bar"></div></div>
+    </div>
+  </header>
+
+  <div class="drag-hint" id="drag-hint">左右拖曳畫面，看看大家排隊等著發聲</div>
+
+  <footer class="hud-footer">
+    <button type="button" class="btn" id="cta-speak">我也要加入排隊，登台發聲 →</button>
+  </footer>
+</div>
+
+<div class="billboard-wrap">
+  <div class="glass billboard">
+    <div class="b-progress-track"><div class="b-progress-bar" id="b-progress"></div></div>
+    <div class="b-meta">
+      <div class="b-speaker">
+        <span class="b-role" id="b-role">小組長</span>
+        <span class="b-species" id="b-species">台灣藍鵲</span>
+      </div>
+      <span class="b-topic" id="b-topic">#交通與通勤攻略</span>
+    </div>
+    <div class="b-faith">
+      <div class="b-faith-h">✨ 神正挑旺他</div>
+      <div class="b-faith-c" id="b-faith"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Quiz modal (Q1~Q5) -->
+<div class="overlay" id="quiz-overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-step-label" id="quiz-progress">STEP 1 / 5</div>
+        <h2 class="modal-title" id="quiz-title">這趟新季節的旅程，你的角色是什麼？</h2>
+      </div>
+      <button class="modal-close" id="quiz-close" type="button">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="step" data-step="1">
+        <div class="role-list" id="role-list"></div>
+        <div class="field" id="name-field" hidden style="margin-top:10px">
+          <label for="name-input">請填寫你的名字</label>
+          <input id="name-input" type="text" maxlength="10" placeholder="10 字以內，中文或英文名字皆可">
+          <div class="counter"><span id="name-count">0</span>/10</div>
+        </div>
+      </div>
+      <div class="step" data-step="2" hidden>
+        <div class="topic-list" id="topic-list"></div>
+        <div class="sub-wrap" id="sub-wrap" hidden></div>
+      </div>
+      <div class="step" data-step="3" hidden>
+        <div class="note">實務敲碗，將整理進《同行包》FAQ 題庫（選填）</div>
+        <div class="field">
+          <textarea id="q3-input" rows="3" maxlength="50" placeholder="（例如：某某公車有到嗎？受洗需要自備什麼？）"></textarea>
+          <div class="counter"><span id="q3-count">0</span>/50</div>
+        </div>
+      </div>
+      <div class="step" data-step="4" hidden>
+        <div class="note">此題將與你關心的議題一同登上<b>森林講台</b>，和大家一起發聲！</div>
+        <div class="field">
+          <textarea id="q4-input" rows="2" maxlength="20" placeholder="寫下一句激勵彼此的話，一起為新季節打氣！"></textarea>
+          <div class="counter"><span id="q4-count">0</span>/20</div>
+        </div>
+      </div>
+      <div class="step" data-step="5" hidden>
+        <div class="note">此題<b>絕對保密</b>，僅牧者團隊守望禱告使用，不會公開在任何畫面。</div>
+        <div class="field">
+          <textarea id="q5-input" rows="4" maxlength="100" placeholder="生活的挑戰、適應的焦慮，寫在這裡，我們陪你一起面對..."></textarea>
+          <div class="counter"><span id="q5-count">0</span>/100</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost" id="quiz-back" type="button" style="visibility:hidden">上一步</button>
+      <button class="btn" id="quiz-next" type="button" style="flex:1">下一步</button>
+    </div>
+  </div>
+</div>
+
+<!-- UGC card modal -->
+<div class="overlay" id="ugc-overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 class="modal-title">你的專屬圖卡已生成</h2>
+      <button class="modal-close" id="ugc-close" type="button">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="cardshell"><canvas id="card-canvas" width="1080" height="1920"></canvas></div>
+      <div class="btn-row">
+        <button class="btn" id="download-btn" type="button">下載圖卡 →</button>
+      </div>
+      <div class="reveal" id="reveal-panel"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ================= DATA ================= */
+  var ROLES = [
+    { id:'leader', name:'小組長', animal:'台灣藍鵲', english:'FORMOSAN BLUE MAGPIE', cutout:'assets/magpie_cutout.png', standOffset:58,
+      trait:'團結護巢，不落下任何家人。',
+      action:'10/20 記得領取《同行包》，並在小組內主動發起「搬家 Q&A 對話」，幫助組員化解對新場地與新聚會時間的擔憂。',
+      encouragement:'帶領群體遷徙很不容易，神看見了你的用心。你不需完美解答所有場地問題，只要展現「我們一起走」的陪伴，神會親自吸引他們。' },
+    { id:'serving_lead', name:'服事領袖', animal:'台灣黑熊', english:'FORMOSAN BLACK BEAR', cutout:'assets/bear_cutout.png', standOffset:58,
+      trait:'強壯穩重，團隊重量級基石。',
+      action:'準備參與異象佈達並盤點團隊人力，用你的安定感，陪伴團隊適應全新週末四場的班表與運作節奏。',
+      encouragement:'扛下流程重組與人力調度的壓力很吃重，但你是團隊最安心的靠山。你現在鋪好的每一條路，都是未來承載神蹟的軌道，辛苦了！' },
+    { id:'member', name:'小組員', animal:'台灣梅花鹿', english:'FORMOSAN SIKA DEER', cutout:'assets/sikadeer_cutout.png', standOffset:0,
+      trait:'靈巧溫馴，習慣群體同行。',
+      action:'發揮相聚本能，尋找 12 月內湖新場地周邊的美食或咖啡廳，自告奮勇為小組規劃搬家後的第一頓「迎新聚餐」！',
+      encouragement:'換到新場地確實需要跨出舒適圈，但最美的風景從來不是場地本身，而是跟你一起吃喝、一起歡笑同行的家人。' },
+    { id:'volunteer', name:'服事夥伴', animal:'台灣犬', english:'FORMOSAN TAIWAN DOG', cutout:'assets/taiwandog_cutout.png', standOffset:58,
+      trait:'忠誠熱情，傳遞教會溫度的第一線。',
+      action:'留意近期的意願調查並回覆你的服事意願，準備在新場地用笑容迎接每一位走進大廳的家人，並享受我們為你預備的專屬 First Coffee。',
+      encouragement:'在變動中服事會消耗很多隱形能量，記得隨時回到神面前充電。你的每一次熱情服事、每一個微笑，都在讓陌生的新空間充滿家的溫度。' },
+    { id:'congregation', name:'會眾朋友', animal:'台灣石虎', english:'FORMOSAN LEOPARD CAT', cutout:'assets/leopardcat_cutout.png', standOffset:58,
+      trait:'靈敏敞開，探索新季節風景。',
+      action:'現在就空下 12/5-12/6 的週末行事曆！發揮探索精神，邀請一位還沒來過教會的朋友，一起見證 Welcome Home 首週主日。',
+      encouragement:'每一次的跨越，神都預備了新的恩典。帶著你如石虎般的好奇與敞開，期待在這個全新的空間裡，看見神要對你說的新故事。' }
+  ];
+
+  var TOPICS = [
+    { id:'transit', label:'交通與通勤攻略', icon:'🚗', options:['捷運步行指引','汽機車停車資訊','接駁車與共乘機制','上下車臨停動線'] },
+    { id:'sunday', label:'主日聚會與現場受洗', icon:'💧', options:['雙語場次安排','大廳每週現場受洗','場次間隔與交誼緩衝','主日邀約與帶新朋友'] },
+    { id:'family', label:'家庭與 Hope Kids 專區', icon:'👧', options:['新教室空間與安全','報到與接送動線','育嬰與推車友善設施','新環境適應與安撫'] },
+    { id:'weekday', label:'週間小組與裝備課程', icon:'📚', options:['平日小組場地','實體裝備課程地點','克服距離的牧養心法','平日約談與牧養據點'] },
+    { id:'space', label:'現場空間與交誼生活圈', icon:'☕', options:['會後 Hang out 空間','內湖周邊聚餐美食','新朋友迎賓專區','服事同工休息與動線'] }
+  ];
+
+  var SAMPLE_SPEECHES = [
+    { roleId:'leader', topicId:'transit', sub:'捷運步行指引', faith:'這一步，我們一起走！', question:'捷運站走到新場地大概要幾分鐘？會有指引標示嗎？' },
+    { roleId:'serving_lead', topicId:'sunday', sub:'大廳每週現場受洗', faith:'相信神預備更大的空間與靈魂收割。', question:'受洗後濕身要去哪裡換裝？教會有預備浴巾嗎？' },
+    { roleId:'member', topicId:'space', sub:'內湖周邊聚餐美食', faith:'期待新朋友越來越多，一起吃喝同行。', question:'主日結束後，附近有適合十人以上小組聚餐不趕人的餐廳嗎？' },
+    { roleId:'volunteer', topicId:'family', sub:'報到與接送動線', faith:'用微笑迎接每一個走進來的家人。', question:'Hope Kids 的接送動線會跟大廳主要人流分開嗎？' },
+    { roleId:'congregation', topicId:'weekday', sub:'實體裝備課程地點', faith:'帶著好奇，一起跨入新的恩典。', question:'週間的裝備課程會在內湖新場地，還是原本的地點？' },
+    { roleId:'member', topicId:'family', sub:'新教室空間與安全', faith:'神做奇妙事，一起期待。', question:'新教室的門禁和孩子交接流程會有什麼不同？' },
+    { roleId:'leader', topicId:'sunday', sub:'主日邀約與帶新朋友', faith:'成為他人的祝福，一起得地為業。', question:'如果想邀新朋友來新堂主日，有推薦的場次嗎？' },
+    { roleId:'congregation', topicId:'transit', sub:'汽機車停車資訊', faith:'新的季節，新的恩典。', question:'開車去的話，停車場車位夠嗎，需要提前預約嗎？' }
+  ];
+
+  // 部署好 Google Apps Script 網頁應用程式後，把網址貼在這裡即可串接即時資料（留空＝原型展示模式）。
+  var GAS_ENDPOINT = '';
+
+  function $(id){ return document.getElementById(id); }
+  function byId(list, id, key){ key=key||'id'; for(var i=0;i<list.length;i++){ if(list[i][key]===id) return list[i]; } return null; }
+  function roundRect(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+
+  /* ================= QUEUE / STAGE ENGINE ================= */
+  var animalImages = {};
+  ROLES.forEach(function(r){ var img = new Image(); img.src = r.cutout; animalImages[r.id] = img; });
+
+  function StageActor(data, worldX, worldY){
+    this.id = 'a_' + Math.random().toString(36).slice(2,9);
+    this.roleId = data.roleId; this.topicId = data.topicId; this.sub = data.sub||'';
+    this.faith = data.faith; this.question = data.question;
+    this.x = worldX; this.targetX = worldX; this.state = 'idle';
+    this.y = worldY||0; this.targetY = worldY||0;
+    this.stepPhase = Math.random()*Math.PI*2; this.idlePhase = Math.random()*Math.PI*2;
+    this.opacity = 1; this.isExiting = false; this.isSpeakerSlot = false;
+  }
+  StageActor.prototype.update = function(){
+    var dx = this.targetX - this.x;
+    var dy = this.targetY - this.y;
+    if(this.isExiting){
+      this.state='exiting'; this.x += dx*0.12; this.y += dy*0.12; this.stepPhase += 0.25;
+      this.opacity -= 0.03; if(this.opacity<0) this.opacity=0;
+    } else if(Math.abs(dx) > 1.5 || Math.abs(dy) > 1.5){
+      this.state='walking'; this.x += dx*0.08; this.y += dy*0.08; this.stepPhase += 0.22;
+    } else {
+      this.x = this.targetX; this.y = this.targetY; this.state = this.isSpeakerSlot ? 'speaking' : 'idle';
+    }
+    this.idlePhase += 0.04;
+  };
+  StageActor.prototype.renderProps = function(){
+    var bobY=0, tilt=0, scale=1;
+    if(this.state==='walking' || this.state==='exiting'){ bobY=-Math.abs(Math.sin(this.stepPhase))*13; tilt=Math.sin(this.stepPhase)*0.05; }
+    else if(this.state==='speaking'){ bobY=Math.sin(this.idlePhase)*4; }
+    else { bobY=Math.sin(this.idlePhase)*3; }
+    if(this.isSpeakerSlot) scale=1.08;
+    return { bobY:bobY, tilt:tilt, scale:scale };
+  };
+
+  var Q = {
+    actors:[], exitingActors:[], speakerActor:null,
+    speechDuration:12, speechTimer:0, isPlaying:true, isTransitioning:false,
+    cameraX:0, targetCameraX:0, isDragging:false, dragStartX:0, cameraStartX:0,
+    activeTopicId:'all'
+  };
+
+  // 依手機/視窗寬度即時換算的舞台尺度：講台錨點對齊真實背景圖中的講台位置，
+  // 隊伍排在講台左側（畫面空間較大的一側），動物由左往右依序前進上台發言。
+  var STAGE = { w:0, h:0, scale:1, anchorX:0, anchorY:0, spacing:130, exitX:400, queueY:90 };
+  function updateStageMetrics(w, h){
+    STAGE.w = w; STAGE.h = h;
+    STAGE.scale = Math.max(0.5, Math.min(1, w/760));
+    STAGE.anchorX = w * 0.78;
+    STAGE.anchorY = h * 0.70;
+    STAGE.spacing = 192 * STAGE.scale; // 要大於排隊動物實際畫出的寬度，避免互相重疊黏在一起
+    STAGE.exitX = (STAGE.w - STAGE.anchorX) + 170 * STAGE.scale;
+    // 排隊的人站在階梯下方、前景那排木頭樹墩的高度，講台在階梯頂端；輪到才走上台階發言
+    STAGE.queueY = h * 0.20;
+    // 講者站在講台錨點再往右一些的位置（麥克風旁），不是正中央
+    STAGE.speakerOffsetX = 34 * STAGE.scale;
+  }
+
+  // 只有第 0 位（講者）站上講台 y=0；其餘排隊者都停在階梯下方 y=STAGE.queueY
+  // 每種動物因姿勢（展翅、伸手等）佔的視覺重心不同，額外用 standOffset 微調，避免擋住麥克風講台
+  function realignQueue(){
+    Q.actors.forEach(function(actor, index){
+      actor.isSpeakerSlot = (index===0);
+      if(index===0){
+        var role = byId(ROLES, actor.roleId);
+        actor.targetX = STAGE.speakerOffsetX + (role && role.standOffset ? role.standOffset : 0) * STAGE.scale;
+        actor.targetY = 0;
+      } else {
+        actor.targetX = -(STAGE.spacing*0.9 + index*STAGE.spacing);
+        actor.targetY = STAGE.queueY;
+      }
+    });
+  }
+  function poolForTopic(topicId){
+    if(topicId==='all') return SAMPLE_SPEECHES;
+    var pool = SAMPLE_SPEECHES.filter(function(s){ return s.topicId===topicId; });
+    return pool.length ? pool : SAMPLE_SPEECHES;
+  }
+  function initQueueActors(){
+    Q.actors=[]; Q.exitingActors=[];
+    var firstRole = byId(ROLES, SAMPLE_SPEECHES[0].roleId);
+    var firstX = STAGE.speakerOffsetX + (firstRole && firstRole.standOffset ? firstRole.standOffset : 0) * STAGE.scale;
+    var speaker = new StageActor(SAMPLE_SPEECHES[0], firstX, 0);
+    speaker.state='speaking'; speaker.isSpeakerSlot=true; Q.actors.push(speaker); Q.speakerActor=speaker;
+    for(var i=1;i<8;i++){
+      var d = SAMPLE_SPEECHES[i % SAMPLE_SPEECHES.length];
+      Q.actors.push(new StageActor(d, -(STAGE.spacing*0.9 + i*STAGE.spacing), STAGE.queueY));
+    }
+    realignQueue(); Q.speechTimer=0; updateBillboard();
+  }
+  function advanceQueue(){
+    if(!Q.actors.length || Q.isTransitioning) return;
+    Q.isTransitioning = true; setTimeout(function(){ Q.isTransitioning=false; }, 380);
+    var cur = Q.actors.shift();
+    if(cur){ cur.isExiting=true; cur.targetX=STAGE.exitX; cur.targetY=0; Q.exitingActors.push(cur); }
+    if(Q.actors.length){ Q.speakerActor = Q.actors[0]; realignQueue(); replenishTail(); }
+    Q.speechTimer=0; updateBillboard();
+  }
+  function replenishTail(){
+    if(Q.actors.length>=9) return;
+    var lastIndex = Q.actors.length;
+    var baseX = -(STAGE.spacing*0.9 + lastIndex*STAGE.spacing);
+    var pool = poolForTopic(Q.activeTopicId);
+    var data = pool[Math.floor(Math.random()*pool.length)];
+    var actor = new StageActor(data, baseX - STAGE.spacing*0.7, STAGE.queueY);
+    actor.targetX = baseX; actor.targetY = STAGE.queueY;
+    Q.actors.push(actor);
+  }
+  function insertUserActor(data){
+    var actor = new StageActor(data, -(STAGE.spacing*6 + 200), STAGE.queueY); // 從排隊方向（左側、階梯下）直接插隊上台
+    actor.isExiting=false;
+    if(Q.speakerActor){ Q.speakerActor.isExiting=true; Q.speakerActor.targetX=STAGE.exitX; Q.speakerActor.targetY=0; Q.exitingActors.push(Q.speakerActor); Q.actors.shift(); }
+    Q.actors.unshift(actor);
+    Q.speakerActor = actor;
+    realignQueue();
+    Q.speechTimer=0;
+    updateBillboard();
+  }
+
+  function updateBillboard(){
+    var s = Q.speakerActor; if(!s) return;
+    var role = byId(ROLES, s.roleId); var topic = byId(TOPICS, s.topicId);
+    $('b-role').textContent = role ? role.name : '';
+    $('b-species').textContent = role ? role.animal : '';
+    $('b-topic').textContent = topic ? ('#'+topic.label) : '';
+    $('b-faith').textContent = s.faith || '';
+  }
+
+  /* ================= CANVAS RENDER ================= */
+  var canvas = $('stage-canvas');
+  var ctx = canvas.getContext('2d');
+  // 量測畫布實際排版後的大小（在部分內嵌 WebView 中，script 執行當下 window.innerWidth/Height
+  // 可能還沒就緒／是 0，改用 canvas 自己版面大小＋後援值，較可靠）
+  function viewportSize(){
+    var w = canvas.clientWidth || window.innerWidth || document.documentElement.clientWidth || 360;
+    var h = canvas.clientHeight || window.innerHeight || document.documentElement.clientHeight || 640;
+    return { w:w, h:h };
+  }
+  function resizeCanvas(){
+    var dpr = window.devicePixelRatio || 1;
+    var vp = viewportSize();
+    canvas.width = vp.w * dpr;
+    canvas.height = vp.h * dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    updateStageMetrics(vp.w, vp.h);
+    STAGE.bg = null;
+    if(bgStage.complete && bgStage.naturalWidth>0) computeBgFrame(vp.w, vp.h);
+  }
+  window.addEventListener('resize', resizeCanvas);
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', resizeCanvas);
+  }
+
+  // 真實森林發言舞台背景圖（固定不隨鏡頭拖曳，動物在它前面排隊登台）
+  // 改用加寬版（2000x667，左側樹林延伸更長），讓排隊鏡頭往左拖曳時有足夠的森林景可以露出。
+  var bgStage = new Image();
+  bgStage.src = 'assets/stage_background_wide.webp';
+  // 講台／麥克風在原圖中的相對位置（量測自 2000x667 加寬圖），裁切時以此為錨點，
+  // 讓講台不論手機或桌機螢幕比例，永遠對齊動物站立的 STAGE.anchorX / anchorY。
+  var BG_FOCAL = { x: 0.725, y: 0.685 };
+
+  // 背景圖在裁切後通常比畫面寬／高，多出來的部分就是鏡頭可以平移、露出隊伍森林景的「餘裕」。
+  // 這裡算出該餘裕範圍，背景會跟著鏡頭一起平移（而不是固定不動），拖曳時森林景會跟著動物一起側移。
+  function computeBgFrame(w,h){
+    var scale = Math.max(w/bgStage.width, h/bgStage.height);
+    var dw = bgStage.width*scale, dh = bgStage.height*scale;
+    var idealX = STAGE.anchorX - BG_FOCAL.x*dw;
+    var idealY = STAGE.anchorY - BG_FOCAL.y*dh;
+    var baseX = Math.min(0, Math.max(w-dw, idealX));
+    var baseY = Math.min(0, Math.max(h-dh, idealY));
+    STAGE.bg = { dw:dw, dh:dh, baseX:baseX, baseY:baseY, minX:w-dw, maxX:0 };
+  }
+  function drawStaticBackground(w,h){
+    if(bgStage.complete && bgStage.naturalWidth>0){
+      if(!STAGE.bg) computeBgFrame(w,h);
+      var bg = STAGE.bg;
+      var dx = Math.min(bg.maxX, Math.max(bg.minX, bg.baseX + Q.cameraX));
+      ctx.drawImage(bgStage, dx, bg.baseY, bg.dw, bg.dh);
+    } else {
+      var sky = ctx.createLinearGradient(0,0,0,h);
+      sky.addColorStop(0,'#FBF8F1'); sky.addColorStop(0.5,'#EEF3E8'); sky.addColorStop(1,'#D9E6D3');
+      ctx.fillStyle = sky; ctx.fillRect(0,0,w,h);
+    }
+  }
+  function drawActor(actor, podiumX, groundY){
+    var img = animalImages[actor.roleId];
+    if(!img || !img.complete || img.naturalWidth===0) return;
+    var screenX = podiumX + actor.x;
+    var rp = actor.renderProps();
+    var s = STAGE.scale * rp.scale;
+    ctx.save(); ctx.globalAlpha = actor.opacity;
+    var footY = groundY + actor.y;
+    var targetH = (actor.isSpeakerSlot ? 230 : 195) * s;
+    var targetW = targetH * (img.width/img.height);
+    ctx.translate(screenX, footY + rp.bobY); ctx.rotate(rp.tilt);
+    ctx.shadowColor='rgba(40,48,28,0.22)'; ctx.shadowBlur=10; ctx.shadowOffsetY=7;
+    // 上台發言時轉身面向講台／麥克風，跟排隊時的朝向相反
+    if(actor.state==='speaking'){ ctx.scale(-1,1); }
+    ctx.drawImage(img, -targetW/2, -targetH, targetW, targetH);
+    ctx.restore();
+    if(!actor.isSpeakerSlot && Math.abs(actor.x)>40*STAGE.scale){
+      ctx.save();
+      var role = byId(ROLES, actor.roleId) || ROLES[0];
+      var tagY = footY - targetH - 16*STAGE.scale;
+      var tw = 80*STAGE.scale, th = 19*STAGE.scale;
+      ctx.fillStyle='rgba(255,255,255,0.88)'; ctx.strokeStyle='rgba(46,53,36,0.15)'; ctx.lineWidth=1;
+      roundRect(ctx, screenX-tw/2, tagY-th/2, tw, th, th/2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle='#2E3524'; ctx.font='700 '+Math.max(9,Math.round(10*STAGE.scale))+'px "Noto Sans TC", sans-serif'; ctx.textAlign='center';
+      ctx.fillText(role.name, screenX, tagY+3*STAGE.scale);
+      ctx.restore();
+    }
+  }
+
+  function renderLoop(){
+    try{
+      // 自我校正：如果畫布版面大小跟畫布內部解析度對不上（常發生在剛載入、
+      // 內嵌 WebView 版面還沒定案的那一刻），就重新量測一次，確保一定會畫出來
+      var vp = viewportSize();
+      var dpr = window.devicePixelRatio || 1;
+      if(Math.abs(canvas.width - vp.w*dpr) > 2 || Math.abs(canvas.height - vp.h*dpr) > 2){
+        resizeCanvas();
+      }
+
+      Q.cameraX += (Q.targetCameraX - Q.cameraX) * 0.1;
+      if(Q.isPlaying){
+        Q.speechTimer += 1/60;
+        var p = Math.min(1, Q.speechTimer / Q.speechDuration);
+        var bar = $('b-progress'); if(bar) bar.style.width = ((1-p)*100)+'%';
+        if(Q.speechTimer >= Q.speechDuration) advanceQueue();
+      }
+      Q.actors.forEach(function(a){ a.update(); });
+      Q.exitingActors.forEach(function(a){ a.update(); });
+      Q.exitingActors = Q.exitingActors.filter(function(a){ return a.opacity>0; });
+
+      var w = STAGE.w, h = STAGE.h;
+      ctx.clearRect(0,0,w,h);
+      drawStaticBackground(w,h);
+      // 講台錨點依手機畫面即時校準（STAGE.anchorX/anchorY），隊伍排在講台左側，依序往右上台
+      var groundY = STAGE.anchorY;
+      var podiumX = STAGE.anchorX + Q.cameraX;
+      Q.exitingActors.forEach(function(a){ drawActor(a, podiumX, groundY); });
+      for(var i=Q.actors.length-1; i>=0; i--){ drawActor(Q.actors[i], podiumX, groundY); }
+    }catch(err){
+      // 任何單一影格畫圖失敗都不該讓整個動畫停擺，記錄下來、下一影格繼續跑
+      if(window.console) console.error('renderLoop error', err);
+    }
+    requestAnimationFrame(renderLoop);
+  }
+
+  /* ================= CAMERA CONTROLS ================= */
+  // 鏡頭可平移的範圍 = 背景圖裁切後多出來的餘裕（讓背景和動物一起側移，不會露出圖片外的空白）
+  // 沒有獨立的鏡頭按鈕了，只靠拖曳手勢 + 自動輪流播放
+  function cameraRange(){
+    var bg = STAGE.bg;
+    if(!bg) return { min:-STAGE.spacing*3, max:STAGE.spacing*3 };
+    return { min: bg.minX - bg.baseX, max: bg.maxX - bg.baseX };
+  }
+  canvas.addEventListener('pointerdown', function(e){ Q.isDragging=true; Q.dragStartX=e.clientX; Q.cameraStartX=Q.cameraX; hideDragHint(); });
+  window.addEventListener('pointermove', function(e){
+    if(!Q.isDragging) return;
+    var dx = e.clientX - Q.dragStartX;
+    var r = cameraRange();
+    Q.targetCameraX = Math.max(r.min, Math.min(r.max, Q.cameraStartX + dx));
+  });
+  window.addEventListener('pointerup', function(){ Q.isDragging=false; });
+
+  /* ================= DRAG HINT ================= */
+  var dragHintEl = $('drag-hint');
+  var dragHintTimer = setTimeout(hideDragHint, 4000);
+  function hideDragHint(){
+    clearTimeout(dragHintTimer);
+    dragHintEl.classList.add('hide');
+  }
+
+  /* ================= FILTER CHIPS ================= */
+  var filterBar = $('filter-bar');
+  var filterToggle = $('filter-toggle');
+  var filterPanel = $('filter-panel');
+  filterToggle.addEventListener('click', function(){
+    var open = filterPanel.classList.toggle('open');
+    filterToggle.classList.toggle('active', open);
+  });
+  function buildFilterBar(){
+    filterBar.innerHTML='';
+    var all = document.createElement('button');
+    all.type='button'; all.className='pillbtn active'; all.textContent='全部發聲';
+    all.addEventListener('click', function(){ setFilter('all', all); });
+    filterBar.appendChild(all);
+    TOPICS.forEach(function(t){
+      var b = document.createElement('button');
+      b.type='button'; b.className='pillbtn'; b.textContent=t.icon+' '+t.label;
+      b.addEventListener('click', function(){ setFilter(t.id, b); });
+      filterBar.appendChild(b);
+    });
+  }
+  function setFilter(topicId, btn){
+    Q.activeTopicId = topicId;
+    Array.prototype.forEach.call(filterBar.children, function(c){ c.classList.remove('active'); });
+    btn.classList.add('active');
+    for(var i=1;i<Q.actors.length;i++){
+      var pool = poolForTopic(topicId);
+      var fresh = pool[Math.floor(Math.random()*pool.length)];
+      Q.actors[i].topicId = fresh.topicId; Q.actors[i].sub = fresh.sub;
+      Q.actors[i].faith = fresh.faith; Q.actors[i].question = fresh.question;
+    }
+  }
+
+  /* ================= QUIZ MODAL ================= */
+  var state = { roleId:null, name:'', topicId:null, sub:null, q3:'', q4:'', q5:'' };
+  var curStep = 1, TOTAL_STEPS = 5;
+  var quizOverlay = $('quiz-overlay');
+  var titles = [
+    '這趟新季節的旅程，你的角色是什麼？',
+    '我們一起進入新的場地，你最在意的是？',
+    '你剛選的議題，有什麼具體的問題嗎？',
+    '神正在你心裡放下什麼期待或感動？',
+    '有什麼需要牧者與團隊一起為你守望禱告的？'
+  ];
+
+  var roleList = $('role-list');
+  ROLES.forEach(function(r){
+    var card = document.createElement('div');
+    card.className='role-opt';
+    card.innerHTML = '<img src="'+r.cutout+'" alt="'+r.animal+'"><div class="ri"><span class="rn">'+r.name+'<span class="ra">'+r.animal+'</span></span><span class="rd">'+r.trait+'</span></div>';
+    card.addEventListener('click', function(){
+      state.roleId = r.id;
+      Array.prototype.forEach.call(roleList.children, function(c){ c.classList.remove('sel'); });
+      card.classList.add('sel');
+      $('name-field').hidden = false;
+    });
+    roleList.appendChild(card);
+  });
+  $('name-input').addEventListener('input', function(){ state.name=this.value; $('name-count').textContent=this.value.length; });
+
+  var topicListEl = $('topic-list'), subWrap = $('sub-wrap');
+  TOPICS.forEach(function(t){
+    var row = document.createElement('div');
+    row.className='topic-row';
+    row.innerHTML = '<span class="ico">'+t.icon+'</span><span class="tx">'+t.label+'</span>';
+    row.addEventListener('click', function(){
+      state.topicId=t.id; state.sub=null;
+      Array.prototype.forEach.call(topicListEl.children, function(c){ c.classList.remove('sel'); });
+      row.classList.add('sel');
+      renderSubOptions(t);
+    });
+    topicListEl.appendChild(row);
+  });
+  function renderSubOptions(topic){
+    subWrap.hidden=false; subWrap.innerHTML='';
+    topic.options.forEach(function(opt){
+      var o=document.createElement('div'); o.className='sub-opt';
+      o.innerHTML='<span class="dot"></span><span>'+opt+'</span>';
+      o.addEventListener('click', function(){
+        state.sub=opt;
+        Array.prototype.forEach.call(subWrap.children, function(c){ c.classList.remove('sel'); });
+        o.classList.add('sel');
+      });
+      subWrap.appendChild(o);
+    });
+  }
+  function bindCounter(inputId,countId,key){
+    var el=$(inputId);
+    el.addEventListener('input', function(){ state[key]=el.value; $(countId).textContent=el.value.length; });
+  }
+  bindCounter('q3-input','q3-count','q3');
+  bindCounter('q4-input','q4-count','q4');
+  bindCounter('q5-input','q5-count','q5');
+
+  var stepsEls = document.querySelectorAll('.step');
+  function showStep(n){
+    stepsEls.forEach(function(s){ s.hidden = (parseInt(s.getAttribute('data-step'),10)!==n); });
+    $('quiz-progress').textContent = 'STEP '+n+' / '+TOTAL_STEPS;
+    $('quiz-title').textContent = titles[n-1];
+    $('quiz-back').style.visibility = (n===1) ? 'hidden' : 'visible';
+    $('quiz-next').textContent = (n===TOTAL_STEPS) ? '送出，登台發聲 →' : '下一步';
+  }
+  function validateStep(n){
+    if(n===1) return !!state.roleId && state.name.trim().length>0;
+    if(n===2) return !!state.topicId && !!state.sub;
+    if(n===4) return state.q4.trim().length>0;
+    if(n===5) return state.q5.trim().length>0;
+    return true;
+  }
+  $('quiz-next').addEventListener('click', function(){
+    if(!validateStep(curStep)){
+      this.animate([{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],{duration:240});
+      return;
+    }
+    if(curStep<TOTAL_STEPS){ curStep++; showStep(curStep); }
+    else { finishQuiz(); }
+  });
+  $('quiz-back').addEventListener('click', function(){ if(curStep>1){ curStep--; showStep(curStep); } });
+  $('quiz-close').addEventListener('click', closeQuiz);
+  $('cta-speak').addEventListener('click', openQuiz);
+
+  function openQuiz(){
+    curStep=1; showStep(1); quizOverlay.classList.add('open');
+    hideDragHint();
+  }
+  function closeQuiz(){ quizOverlay.classList.remove('open'); }
+
+  function finishQuiz(){
+    quizOverlay.classList.remove('open');
+    var role = byId(ROLES, state.roleId);
+    insertUserActor({ roleId:state.roleId, topicId:state.topicId, sub:state.sub, faith:state.q4, question:state.q3 });
+    showToast('已加入隊伍，正在登台發聲！');
+    postSubmission(role);
+    openUgc(role);
+  }
+
+  /* ================= UGC CARD ================= */
+  var ugcOverlay = $('ugc-overlay');
+  $('ugc-close').addEventListener('click', function(){ ugcOverlay.classList.remove('open'); });
+
+  function wrapText(c, text, x, y, maxWidth, lineHeight){
+    var chars=text.split(''), line='', lines=[];
+    for(var i=0;i<chars.length;i++){
+      var test=line+chars[i];
+      if(c.measureText(test).width>maxWidth && line.length>0){ lines.push(line); line=chars[i]; } else { line=test; }
+    }
+    lines.push(line);
+    lines.forEach(function(l,idx){ c.fillText(l, x, y+idx*lineHeight); });
+    return lines.length;
+  }
+
+  function drawCard(role){
+    var canvasEl = $('card-canvas'); var c = canvasEl.getContext('2d');
+    var W=canvasEl.width, H=canvasEl.height;
+    var bg=new Image(), cutout=new Image(); var loaded=0;
+    function ready(){ loaded++; if(loaded===2) render(); }
+    bg.onload=ready; cutout.onload=ready;
+    bg.src='assets/stage_background_main.webp'; cutout.src=role.cutout;
+    function render(){
+      var scale = Math.max(W/bg.width, H/bg.height);
+      var bw=bg.width*scale, bh=bg.height*scale;
+      c.drawImage(bg, (W-bw)/2, (H-bh)/2-60, bw, bh);
+      var grad=c.createLinearGradient(0,0,0,H);
+      grad.addColorStop(0,'rgba(20,24,14,0.38)'); grad.addColorStop(0.32,'rgba(20,24,14,0.02)');
+      grad.addColorStop(0.68,'rgba(20,24,14,0.05)'); grad.addColorStop(1,'rgba(14,16,10,0.62)');
+      c.fillStyle=grad; c.fillRect(0,0,W,H);
+      c.textAlign='right'; c.fillStyle='rgba(255,255,255,0.92)'; c.font='400 26px Jost, sans-serif';
+      c.fillText('THE HOPE CHURCH', W-56, 86);
+      var panelX=56, panelW=W-112, panelY=150;
+      c.textAlign='left'; c.font='700 30px "Noto Sans TC", sans-serif'; c.fillStyle='#C99A42';
+      c.fillText('✨ 神正挑旺他', panelX+34, panelY+58);
+      c.font='700 44px "Noto Serif TC", serif'; c.fillStyle='#ffffff';
+      var q4 = state.q4 || '一起走進新的季節';
+      var lineH=58;
+      var lines = wrapText(c, q4, panelX+34, panelY+118, panelW-68, lineH);
+      var panelH = 150 + lines*lineH - 20;
+      c.save(); c.globalCompositeOperation='destination-over';
+      roundRect(c, panelX, panelY, panelW, panelH, 26); c.fillStyle='rgba(38,40,26,0.46)'; c.fill(); c.restore();
+      var cw=W*0.72, ch=cw*(cutout.height/cutout.width), cx=(W-cw)/2, cy=H*0.47;
+      if(cy+ch>H*0.92){ ch=H*0.92-cy; cw=ch*(cutout.width/cutout.height); cx=(W-cw)/2; }
+      c.save(); c.shadowColor='rgba(10,14,6,0.45)'; c.shadowBlur=40; c.shadowOffsetY=18;
+      c.drawImage(cutout, cx, cy, cw, ch); c.restore();
+      c.textAlign='center'; c.font='900 56px "Noto Serif TC", serif'; c.fillStyle='#ffffff';
+      c.fillText(role.animal, W/2, cy-26);
+      c.font='400 20px Jost, sans-serif'; c.fillStyle='rgba(255,255,255,0.78)';
+      c.fillText(role.english, W/2, cy+10);
+      var pillText=(state.name||'朋友')+' · '+role.name;
+      c.font='700 28px "Noto Sans TC", sans-serif';
+      var pw=c.measureText(pillText).width+64, px=(W-pw)/2, py=cy+34;
+      roundRect(c, px, py, pw, 54, 27); c.fillStyle='rgba(86,114,76,0.88)'; c.fill();
+      c.fillStyle='#ffffff'; c.fillText(pillText, W/2, py+37);
+      if(state.q3 && state.q3.trim().length>0){
+        var bx=56, bw2=W-112, bh2=150, by=H-bh2-70;
+        roundRect(c, bx, by, bw2, bh2, 24); c.fillStyle='rgba(38,40,26,0.30)'; c.fill();
+        c.textAlign='left'; c.font='700 24px "Noto Sans TC", sans-serif'; c.fillStyle='#F1EEE4';
+        c.fillText('💬 他的真實提問', bx+28, by+46);
+        c.font='400 26px "Noto Sans TC", sans-serif'; c.fillStyle='rgba(255,255,255,0.92)';
+        wrapText(c, state.q3, bx+28, by+84, bw2-56, 34);
+      }
+      var topic = byId(TOPICS, state.topicId);
+      if(topic){
+        c.textAlign='left'; c.font='400 22px Jost, sans-serif'; c.fillStyle='rgba(255,255,255,0.75)';
+        c.fillText('#'+(state.sub||topic.label), 56, H-30);
+      }
+    }
+  }
+  function renderReveal(role){
+    $('reveal-panel').innerHTML =
+      '<div class="tag">YOUR SPIRIT ANIMAL</div>' +
+      '<h3>'+(state.name||'朋友')+' · '+role.name+' → '+role.animal+'</h3>' +
+      '<p>'+role.trait+'</p>' +
+      '<p><b style="color:var(--sage-deep)">下一步：</b>'+role.action+'</p>' +
+      '<p class="quote">'+role.encouragement+'</p>';
+  }
+  function openUgc(role){
+    ugcOverlay.classList.add('open');
+    drawCard(role);
+    renderReveal(role);
+  }
+
+  var downloadsCap = null;
+  if(window.claude && window.claude.use){
+    window.claude.use('downloads').then(function(d){ downloadsCap = d; }).catch(function(){ downloadsCap=null; });
+  }
+  $('download-btn').addEventListener('click', function(){
+    var canvasEl = $('card-canvas');
+    canvasEl.toBlob(async function(blob){
+      if(!blob) return;
+      if(downloadsCap){
+        try{ await downloadsCap.save({ filename:'一起聽見_'+(state.name||'我的卡片')+'.png', data: blob }); return; }catch(e){}
+      }
+      var url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    }, 'image/png');
+  });
+
+  /* ================= TOAST ================= */
+  var toastTimer=null;
+  function showToast(msg){
+    var t=$('toast'); t.textContent=msg; t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer=setTimeout(function(){ t.classList.remove('show'); }, 2800);
+  }
+
+  /* ================= BACKEND (Google Apps Script) ================= */
+  function postSubmission(role){
+    if(!GAS_ENDPOINT) return;
+    var topic = byId(TOPICS, state.topicId);
+    var payload = {
+      name: state.name, roleId: state.roleId, roleName: role.name,
+      topicPrimary: topic ? topic.label : '', topicSecondary: state.sub||'',
+      q3Question: state.q3||'', q4Faith: state.q4||'', q5Prayer: state.q5||''
+    };
+    fetch(GAS_ENDPOINT, { method:'POST', body: JSON.stringify(payload) }).catch(function(){});
+  }
+  function topicIdByLabel(label){ var t=TOPICS.filter(function(x){ return x.label===label; })[0]; return t?t.id:null; }
+  function loadWallData(){
+    if(!GAS_ENDPOINT) return;
+    fetch(GAS_ENDPOINT + '?action=data').then(function(r){ return r.json(); }).then(function(res){
+      if(res && res.success && Array.isArray(res.data) && res.data.length){
+        var mapped = res.data.map(function(d){
+          return { roleId:d.roleId, topicId: topicIdByLabel(d.topicPrimary)||'transit', sub:d.topicSecondary, faith:d.q4Faith||'一起走進新的季節', question:'' };
+        });
+        SAMPLE_SPEECHES = mapped.concat(SAMPLE_SPEECHES);
+      }
+    }).catch(function(){});
+  }
+
+  /* ================= INIT ================= */
+  function init(){
+    resizeCanvas();
+    buildFilterBar();
+    loadWallData();
+    initQueueActors();
+    requestAnimationFrame(renderLoop);
+  }
+  init();
+
+})();
+</script>
