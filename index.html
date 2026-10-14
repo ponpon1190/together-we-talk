@@ -76,14 +76,25 @@
   .brand-titles span{ font-family:var(--font-label); font-size:8.5px; letter-spacing:.16em; color:var(--ink-soft) }
   :root[data-theme="dark"] .brand-titles b{ color:var(--ink) }
 
+  .filter-wrap{ position:relative; flex:none; }
   .filter-toggle{ flex:none; font-family:var(--font-body); font-size:12.5px; font-weight:700; padding:9px 14px; border-radius:999px; background:var(--glass-strong); border:1px solid var(--glass-br); color:var(--sage-deep); cursor:pointer; backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); box-shadow:0 4px 16px rgba(40,48,28,0.08); display:inline-flex; align-items:center; gap:5px; }
   :root[data-theme="dark"] .filter-toggle{ color:var(--ink) }
   .filter-toggle.active{ background:var(--sage); color:#fff; border-color:var(--sage) }
-  .filter-panel{ max-height:0; overflow:hidden; transition:max-height .25s ease; }
-  .filter-panel.open{ max-height:60px; }
-  .filter-scroll{ overflow-x:auto; scrollbar-width:none; -ms-overflow-style:none; padding:6px 1px 1px; }
-  .filter-scroll::-webkit-scrollbar{ display:none }
-  .filter-bar{ display:flex; gap:7px; }
+
+  /* 篩選下拉選單：從篩選鈕右下角彈出的直式清單卡，不是橫向 chips */
+  .filter-dropdown{
+    position:absolute; top:calc(100% + 8px); right:0; width:min(230px, 72vw);
+    background:var(--glass-strong); border:1px solid var(--glass-br); border-radius:var(--radius-md);
+    box-shadow:var(--shadow); backdrop-filter:blur(18px) saturate(1.1); -webkit-backdrop-filter:blur(18px) saturate(1.1);
+    padding:10px; display:none; flex-direction:column; gap:4px; z-index:20;
+  }
+  .filter-dropdown.open{ display:flex; animation:slide .18s ease; }
+  .filter-dropdown-head{ display:flex; align-items:center; justify-content:space-between; padding:2px 6px 6px; border-bottom:1px solid var(--line); margin-bottom:4px; }
+  .filter-dropdown-head span{ font-size:12px; font-weight:800; color:var(--ink-soft); }
+  .dropdown-close{ width:22px; height:22px; border-radius:50%; background:var(--olive-panel-soft); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink); font-size:12px; flex:none; }
+  .filter-bar{ display:flex; flex-direction:column; gap:3px; }
+  .filter-item{ font-family:var(--font-body); font-size:13.5px; font-weight:700; color:var(--ink); background:transparent; border:none; border-radius:10px; padding:10px 10px; cursor:pointer; text-align:left; }
+  .filter-item.active{ background:var(--sage); color:#fff; }
 
   .drag-hint{ position:absolute; bottom:calc(78px + env(safe-area-inset-bottom,0px)); left:50%; transform:translateX(-50%); background:var(--glass-strong); border:1px solid var(--glass-br); padding:6px 15px; border-radius:999px; font-size:11px; font-weight:600; color:var(--ink-soft); pointer-events:none; opacity:.95; transition:opacity .4s ease; white-space:nowrap; }
   .drag-hint.hide{ opacity:0; }
@@ -179,10 +190,16 @@
         <div class="brand-mark">🌿</div>
         <div class="brand-titles"><b>一起聽見</b><span>THE HOPE CHURCH · PHASE 1</span></div>
       </div>
-      <button type="button" class="filter-toggle" id="filter-toggle">🔍 篩選議題</button>
-    </div>
-    <div class="filter-panel" id="filter-panel">
-      <div class="filter-scroll"><div class="filter-bar" id="filter-bar"></div></div>
+      <div class="filter-wrap">
+        <button type="button" class="filter-toggle" id="filter-toggle">🔍 篩選議題</button>
+        <div class="filter-dropdown" id="filter-dropdown">
+          <div class="filter-dropdown-head">
+            <span>篩選議題</span>
+            <button type="button" class="dropdown-close" id="filter-close">✕</button>
+          </div>
+          <div class="filter-bar" id="filter-bar"></div>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -613,23 +630,32 @@
     dragHintEl.classList.add('hide');
   }
 
-  /* ================= FILTER CHIPS ================= */
+  /* ================= FILTER DROPDOWN ================= */
   var filterBar = $('filter-bar');
   var filterToggle = $('filter-toggle');
-  var filterPanel = $('filter-panel');
-  filterToggle.addEventListener('click', function(){
-    var open = filterPanel.classList.toggle('open');
-    filterToggle.classList.toggle('active', open);
+  var filterDropdown = $('filter-dropdown');
+  var filterClose = $('filter-close');
+  function openFilterDropdown(){ filterDropdown.classList.add('open'); filterToggle.classList.add('active'); }
+  function closeFilterDropdown(){ filterDropdown.classList.remove('open'); filterToggle.classList.remove('active'); }
+  filterToggle.addEventListener('click', function(e){
+    e.stopPropagation();
+    if(filterDropdown.classList.contains('open')) closeFilterDropdown(); else openFilterDropdown();
+  });
+  filterClose.addEventListener('click', closeFilterDropdown);
+  document.addEventListener('click', function(e){
+    if(filterDropdown.classList.contains('open') && !filterDropdown.contains(e.target) && e.target!==filterToggle){
+      closeFilterDropdown();
+    }
   });
   function buildFilterBar(){
     filterBar.innerHTML='';
     var all = document.createElement('button');
-    all.type='button'; all.className='pillbtn active'; all.textContent='全部發聲';
+    all.type='button'; all.className='filter-item active'; all.textContent='全部發聲';
     all.addEventListener('click', function(){ setFilter('all', all); });
     filterBar.appendChild(all);
     TOPICS.forEach(function(t){
       var b = document.createElement('button');
-      b.type='button'; b.className='pillbtn'; b.textContent=t.icon+' '+t.label;
+      b.type='button'; b.className='filter-item'; b.textContent=t.icon+' '+t.label;
       b.addEventListener('click', function(){ setFilter(t.id, b); });
       filterBar.appendChild(b);
     });
@@ -638,6 +664,7 @@
     Q.activeTopicId = topicId;
     Array.prototype.forEach.call(filterBar.children, function(c){ c.classList.remove('active'); });
     btn.classList.add('active');
+    closeFilterDropdown();
     for(var i=1;i<Q.actors.length;i++){
       var pool = poolForTopic(topicId);
       var fresh = pool[Math.floor(Math.random()*pool.length)];
