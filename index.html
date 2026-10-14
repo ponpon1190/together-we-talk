@@ -108,13 +108,13 @@
   .b-progress-bar{ height:100%; width:100%; background:linear-gradient(90deg, var(--gold), var(--sage)); transform-origin:left center; }
   .b-meta{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:3px; }
   .b-speaker{ display:flex; align-items:center; gap:7px; min-width:0 }
-  .b-role{ font-size:10.5px; font-weight:800; letter-spacing:.03em; padding:3px 10px; border-radius:999px; background:var(--olive-panel); color:var(--cream); flex:none; }
-  .b-species{ font-size:12.5px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .b-topic{ font-size:10.5px; font-weight:700; color:var(--sage-deep); background:rgba(86,114,76,0.14); padding:3px 9px; border-radius:999px; white-space:nowrap; flex:none; }
+  .b-role{ font-size:12px; font-weight:800; letter-spacing:.03em; padding:4px 11px; border-radius:999px; background:var(--olive-panel); color:var(--cream); flex:none; }
+  .b-species{ font-size:14.5px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .b-topic{ font-size:12px; font-weight:700; color:var(--sage-deep); background:rgba(86,114,76,0.14); padding:4px 10px; border-radius:999px; white-space:nowrap; flex:none; }
   .b-faith{ background:linear-gradient(135deg, #fef7ed, #faedd9); border:1px solid rgba(201,154,66,0.35); border-radius:12px; padding:9px 12px; }
   :root[data-theme="dark"] .b-faith{ background:linear-gradient(135deg, rgba(201,154,66,0.18), rgba(201,154,66,0.1)); }
-  .b-faith-h{ font-size:10px; font-weight:800; letter-spacing:.05em; color:var(--gold) }
-  .b-faith-c{ font-family:var(--font-display); font-size:14.5px; font-weight:700; line-height:1.5; color:#3d240c; margin-top:2px; }
+  .b-faith-h{ font-size:11.5px; font-weight:800; letter-spacing:.05em; color:var(--gold) }
+  .b-faith-c{ font-family:var(--font-display); font-size:17px; font-weight:700; line-height:1.5; color:#3d240c; margin-top:2px; }
   :root[data-theme="dark"] .b-faith-c{ color:#F1EEE4 }
 
   /* ---------------- modal shells ---------------- */
@@ -402,8 +402,8 @@
     // 手機直式螢幕越窄長，背景的森林頂冠就會佔掉越多畫面，動物跟著顯得又小又遠。
     // 用「額外縮放」把鏡頭多拉近一點，長寬比越誇張（越窄長）就拉得越近，角色跟字級也跟著放大。
     var aspect = h / w;
-    STAGE.zoom = aspect > 1.3 ? Math.min(1.9, 1 + (aspect - 1.3) * 0.6) : 1;
-    STAGE.scale = Math.max(0.55, Math.min(1.3, (w/760) * STAGE.zoom));
+    STAGE.zoom = aspect > 1.2 ? Math.min(2.4, 1 + (aspect - 1.2) * 1.0) : 1;
+    STAGE.scale = Math.max(0.6, Math.min(1.6, (w/760) * STAGE.zoom));
     STAGE.anchorX = w * 0.78;
     STAGE.anchorY = h * 0.70;
     STAGE.spacing = 192 * STAGE.scale; // 要大於排隊動物實際畫出的寬度，避免互相重疊黏在一起
