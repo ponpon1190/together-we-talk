@@ -183,6 +183,29 @@
     .billboard-wrap{ top:100px }
     .billboard{ padding:14px 14px 13px }
   }
+
+  /* 手機版：發聲流程（問卷彈窗）文字再放大一輪，確保用手機填寫時字夠大、好讀 */
+  @media (max-width:600px){
+    .overlay{ padding:12px; }
+    .modal{ width:100%; max-width:none; max-height:90vh; max-height:90dvh; border-radius:24px; }
+    .modal-head{ padding:20px 18px 16px; }
+    .modal-step-label{ font-size:13px; }
+    .modal-title{ font-size:24px; line-height:1.5; }
+    .modal-close{ width:44px; height:44px; font-size:18px; }
+    .modal-body{ padding:18px; gap:18px; }
+    .modal-foot{ padding:14px 18px 18px; }
+    .modal-foot .btn{ min-height:50px; font-size:17px; }
+
+    .role-list{ gap:10px; }
+    .role-opt{ gap:12px; padding:13px; min-height:76px; }
+    .role-opt img{ width:56px; height:56px; }
+    .role-opt .rn{ font-size:18px; line-height:1.5; }
+    .role-opt .ra{ font-size:15px; line-height:1.5; }
+    .role-opt .rd{ font-size:15px; line-height:1.6; margin-top:3px; }
+
+    .note, .field label, .topic-row .tx, .sub-opt{ font-size:16px; line-height:1.6; }
+    .counter{ font-size:14px; }
+  }
 </style>
 
 <canvas id="stage-canvas"></canvas>
