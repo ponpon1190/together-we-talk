@@ -69,15 +69,15 @@
     padding:max(14px, env(safe-area-inset-top,0px)) max(14px, env(safe-area-inset-right,0px)) max(14px, env(safe-area-inset-bottom,0px)) max(14px, env(safe-area-inset-left,0px)); }
   .hud-header{ pointer-events:auto; max-width:720px; margin:0 auto; width:100%; display:flex; flex-direction:column; gap:10px; }
   .brand-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
-  .brand-pill{ display:flex; align-items:center; gap:10px; background:var(--glass-strong); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); padding:7px 16px 7px 8px; border-radius:999px; border:1px solid var(--glass-br); box-shadow:0 4px 16px rgba(40,48,28,0.08); }
-  .brand-mark{ width:30px; height:30px; border-radius:50%; background:var(--sage); color:#fff; display:flex; align-items:center; justify-content:center; font-size:15px; flex:none; }
-  .brand-titles{ display:flex; flex-direction:column; line-height:1.2 }
-  .brand-titles b{ font-family:var(--font-display); font-size:14px; font-weight:700 }
-  .brand-titles span{ font-family:var(--font-label); font-size:8.5px; letter-spacing:.16em; color:var(--ink-soft) }
+  .brand-pill{ display:flex; align-items:center; gap:12px; background:var(--glass-strong); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); padding:10px 22px 10px 12px; border-radius:999px; border:1px solid var(--glass-br); box-shadow:0 4px 16px rgba(40,48,28,0.08); }
+  .brand-mark{ width:42px; height:42px; border-radius:50%; background:var(--sage); color:#fff; display:flex; align-items:center; justify-content:center; font-size:18px; font-family:var(--font-display); font-weight:700; flex:none; }
+  .brand-titles{ display:flex; flex-direction:column; line-height:1.25 }
+  .brand-titles b{ font-family:var(--font-display); font-size:19px; font-weight:700 }
+  .brand-titles span{ font-family:var(--font-label); font-size:11px; letter-spacing:.14em; color:var(--ink-soft) }
   :root[data-theme="dark"] .brand-titles b{ color:var(--ink) }
 
   .filter-wrap{ position:relative; flex:none; }
-  .filter-toggle{ flex:none; font-family:var(--font-body); font-size:12.5px; font-weight:700; padding:9px 14px; border-radius:999px; background:var(--glass-strong); border:1px solid var(--glass-br); color:var(--sage-deep); cursor:pointer; backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); box-shadow:0 4px 16px rgba(40,48,28,0.08); display:inline-flex; align-items:center; gap:5px; }
+  .filter-toggle{ flex:none; font-family:var(--font-body); font-size:15.5px; font-weight:700; padding:13px 20px; border-radius:999px; background:var(--glass-strong); border:1px solid var(--glass-br); color:var(--sage-deep); cursor:pointer; backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); box-shadow:0 4px 16px rgba(40,48,28,0.08); display:inline-flex; align-items:center; gap:5px; }
   :root[data-theme="dark"] .filter-toggle{ color:var(--ink) }
   .filter-toggle.active{ background:var(--sage); color:#fff; border-color:var(--sage) }
 
@@ -102,14 +102,18 @@
   .hud-footer{ pointer-events:auto; max-width:720px; margin:0 auto; width:100%; display:flex; align-items:center; gap:10px; }
 
   /* ---------------- billboard ---------------- */
-  .billboard-wrap{ position:absolute; top:112px; left:50%; transform:translateX(-50%); width:92%; max-width:420px; z-index:9; pointer-events:auto; }
+  /* 位置由 JS 每影格算出來、浮在目前講者頭頂正上方；這裡只給第一次畫面還沒就緒前的保底位置 */
+  /* 實際 top/left 由 JS 的 positionBillboard() 每格動態校準到講者正上方；這裡只留初始預設值做 fallback。 */
+  .billboard-wrap{ position:absolute; top:112px; left:50%; transform:translate(-50%,-100%); width:92%; max-width:420px; z-index:9; pointer-events:auto; transition:left .25s ease, top .25s ease; }
   .billboard{ padding:18px 18px 16px; display:flex; flex-direction:column; gap:9px; position:relative; }
   .b-progress-track{ position:absolute; top:0; left:16px; right:16px; height:3px; background:rgba(46,53,36,0.1); border-radius:2px; overflow:hidden; }
   .b-progress-bar{ height:100%; width:100%; background:linear-gradient(90deg, var(--gold), var(--sage)); transform-origin:left center; }
   .b-meta{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:3px; }
-  .b-speaker{ display:flex; align-items:center; gap:7px; min-width:0 }
+  .b-speaker{ display:flex; align-items:center; gap:9px; min-width:0 }
   .b-role{ font-size:12px; font-weight:800; letter-spacing:.03em; padding:4px 11px; border-radius:999px; background:var(--olive-panel); color:var(--cream); flex:none; }
-  .b-species{ font-size:14.5px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .b-who{ display:flex; flex-direction:column; line-height:1.2; min-width:0; }
+  .b-name{ font-size:16px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .b-species{ font-size:11.5px; font-weight:600; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .b-topic{ font-size:12px; font-weight:700; color:var(--sage-deep); background:rgba(86,114,76,0.14); padding:4px 10px; border-radius:999px; white-space:nowrap; flex:none; }
   .b-faith{ background:linear-gradient(135deg, #fef7ed, #faedd9); border:1px solid rgba(201,154,66,0.35); border-radius:12px; padding:9px 12px; }
   :root[data-theme="dark"] .b-faith{ background:linear-gradient(135deg, rgba(201,154,66,0.18), rgba(201,154,66,0.1)); }
@@ -187,15 +191,15 @@
   <header class="hud-header">
     <div class="brand-row">
       <div class="brand-pill">
-        <div class="brand-mark">🌿</div>
+        <div class="brand-mark">起</div>
         <div class="brand-titles"><b>一起聽見</b><span>THE HOPE CHURCH · PHASE 1</span></div>
       </div>
       <div class="filter-wrap">
-        <button type="button" class="filter-toggle" id="filter-toggle">🔍 篩選議題</button>
+        <button type="button" class="filter-toggle" id="filter-toggle">篩選議題</button>
         <div class="filter-dropdown" id="filter-dropdown">
           <div class="filter-dropdown-head">
             <span>篩選議題</span>
-            <button type="button" class="dropdown-close" id="filter-close">✕</button>
+            <button type="button" class="dropdown-close" id="filter-close">X</button>
           </div>
           <div class="filter-bar" id="filter-bar"></div>
         </div>
@@ -210,18 +214,21 @@
   </footer>
 </div>
 
-<div class="billboard-wrap">
+<div class="billboard-wrap" id="billboard-wrap">
   <div class="glass billboard">
     <div class="b-progress-track"><div class="b-progress-bar" id="b-progress"></div></div>
     <div class="b-meta">
       <div class="b-speaker">
         <span class="b-role" id="b-role">小組長</span>
-        <span class="b-species" id="b-species">台灣藍鵲</span>
+        <div class="b-who">
+          <span class="b-name" id="b-name">雅婷</span>
+          <span class="b-species" id="b-species">台灣藍鵲</span>
+        </div>
       </div>
       <span class="b-topic" id="b-topic">#交通與通勤攻略</span>
     </div>
     <div class="b-faith">
-      <div class="b-faith-h">✨ 神正挑旺他</div>
+      <div class="b-faith-h">神正挑旺他</div>
       <div class="b-faith-c" id="b-faith"></div>
     </div>
   </div>
@@ -235,7 +242,7 @@
         <div class="modal-step-label" id="quiz-progress">STEP 1 / 5</div>
         <h2 class="modal-title" id="quiz-title">這趟新季節的旅程，你的角色是什麼？</h2>
       </div>
-      <button class="modal-close" id="quiz-close" type="button">✕</button>
+      <button class="modal-close" id="quiz-close" type="button">X</button>
     </div>
     <div class="modal-body">
       <div class="step" data-step="1">
@@ -284,7 +291,7 @@
   <div class="modal">
     <div class="modal-head">
       <h2 class="modal-title">你的專屬圖卡已生成</h2>
-      <button class="modal-close" id="ugc-close" type="button">✕</button>
+      <button class="modal-close" id="ugc-close" type="button">X</button>
     </div>
     <div class="modal-body">
       <div class="cardshell"><canvas id="card-canvas" width="1080" height="1920"></canvas></div>
@@ -327,22 +334,22 @@
   ];
 
   var TOPICS = [
-    { id:'transit', label:'交通與通勤攻略', icon:'🚗', options:['捷運步行指引','汽機車停車資訊','接駁車與共乘機制','上下車臨停動線'] },
-    { id:'sunday', label:'主日聚會與現場受洗', icon:'💧', options:['雙語場次安排','大廳每週現場受洗','場次間隔與交誼緩衝','主日邀約與帶新朋友'] },
-    { id:'family', label:'家庭與 Hope Kids 專區', icon:'👧', options:['新教室空間與安全','報到與接送動線','育嬰與推車友善設施','新環境適應與安撫'] },
-    { id:'weekday', label:'週間小組與裝備課程', icon:'📚', options:['平日小組場地','實體裝備課程地點','克服距離的牧養心法','平日約談與牧養據點'] },
-    { id:'space', label:'現場空間與交誼生活圈', icon:'☕', options:['會後 Hang out 空間','內湖周邊聚餐美食','新朋友迎賓專區','服事同工休息與動線'] }
+    { id:'transit', label:'交通與通勤攻略', options:['捷運步行指引','汽機車停車資訊','接駁車與共乘機制','上下車臨停動線'] },
+    { id:'sunday', label:'主日聚會與現場受洗', options:['雙語場次安排','大廳每週現場受洗','場次間隔與交誼緩衝','主日邀約與帶新朋友'] },
+    { id:'family', label:'家庭與 Hope Kids 專區', options:['新教室空間與安全','報到與接送動線','育嬰與推車友善設施','新環境適應與安撫'] },
+    { id:'weekday', label:'週間小組與裝備課程', options:['平日小組場地','實體裝備課程地點','克服距離的牧養心法','平日約談與牧養據點'] },
+    { id:'space', label:'現場空間與交誼生活圈', options:['會後 Hang out 空間','內湖周邊聚餐美食','新朋友迎賓專區','服事同工休息與動線'] }
   ];
 
   var SAMPLE_SPEECHES = [
-    { roleId:'leader', topicId:'transit', sub:'捷運步行指引', faith:'這一步，我們一起走！', question:'捷運站走到新場地大概要幾分鐘？會有指引標示嗎？' },
-    { roleId:'serving_lead', topicId:'sunday', sub:'大廳每週現場受洗', faith:'相信神預備更大的空間與靈魂收割。', question:'受洗後濕身要去哪裡換裝？教會有預備浴巾嗎？' },
-    { roleId:'member', topicId:'space', sub:'內湖周邊聚餐美食', faith:'期待新朋友越來越多，一起吃喝同行。', question:'主日結束後，附近有適合十人以上小組聚餐不趕人的餐廳嗎？' },
-    { roleId:'volunteer', topicId:'family', sub:'報到與接送動線', faith:'用微笑迎接每一個走進來的家人。', question:'Hope Kids 的接送動線會跟大廳主要人流分開嗎？' },
-    { roleId:'congregation', topicId:'weekday', sub:'實體裝備課程地點', faith:'帶著好奇，一起跨入新的恩典。', question:'週間的裝備課程會在內湖新場地，還是原本的地點？' },
-    { roleId:'member', topicId:'family', sub:'新教室空間與安全', faith:'神做奇妙事，一起期待。', question:'新教室的門禁和孩子交接流程會有什麼不同？' },
-    { roleId:'leader', topicId:'sunday', sub:'主日邀約與帶新朋友', faith:'成為他人的祝福，一起得地為業。', question:'如果想邀新朋友來新堂主日，有推薦的場次嗎？' },
-    { roleId:'congregation', topicId:'transit', sub:'汽機車停車資訊', faith:'新的季節，新的恩典。', question:'開車去的話，停車場車位夠嗎，需要提前預約嗎？' }
+    { name:'雅婷', roleId:'leader', topicId:'transit', sub:'捷運步行指引', faith:'這一步，我們一起走！', question:'捷運站走到新場地大概要幾分鐘？會有指引標示嗎？' },
+    { name:'志明', roleId:'serving_lead', topicId:'sunday', sub:'大廳每週現場受洗', faith:'相信神預備更大的空間與靈魂收割。', question:'受洗後濕身要去哪裡換裝？教會有預備浴巾嗎？' },
+    { name:'思涵', roleId:'member', topicId:'space', sub:'內湖周邊聚餐美食', faith:'期待新朋友越來越多，一起吃喝同行。', question:'主日結束後，附近有適合十人以上小組聚餐不趕人的餐廳嗎？' },
+    { name:'冠宇', roleId:'volunteer', topicId:'family', sub:'報到與接送動線', faith:'用微笑迎接每一個走進來的家人。', question:'Hope Kids 的接送動線會跟大廳主要人流分開嗎？' },
+    { name:'佳穎', roleId:'congregation', topicId:'weekday', sub:'實體裝備課程地點', faith:'帶著好奇，一起跨入新的恩典。', question:'週間的裝備課程會在內湖新場地，還是原本的地點？' },
+    { name:'柏翰', roleId:'member', topicId:'family', sub:'新教室空間與安全', faith:'神做奇妙事，一起期待。', question:'新教室的門禁和孩子交接流程會有什麼不同？' },
+    { name:'詩雅', roleId:'leader', topicId:'sunday', sub:'主日邀約與帶新朋友', faith:'成為他人的祝福，一起得地為業。', question:'如果想邀新朋友來新堂主日，有推薦的場次嗎？' },
+    { name:'家豪', roleId:'congregation', topicId:'transit', sub:'汽機車停車資訊', faith:'新的季節，新的恩典。', question:'開車去的話，停車場車位夠嗎，需要提前預約嗎？' }
   ];
 
   // 部署好 Google Apps Script 網頁應用程式後，把網址貼在這裡即可串接即時資料（留空＝原型展示模式）。
@@ -359,7 +366,7 @@
   function StageActor(data, worldX, worldY){
     this.id = 'a_' + Math.random().toString(36).slice(2,9);
     this.roleId = data.roleId; this.topicId = data.topicId; this.sub = data.sub||'';
-    this.faith = data.faith; this.question = data.question;
+    this.faith = data.faith; this.question = data.question; this.name = data.name||'';
     this.x = worldX; this.targetX = worldX; this.state = 'idle';
     this.y = worldY||0; this.targetY = worldY||0;
     this.stepPhase = Math.random()*Math.PI*2; this.idlePhase = Math.random()*Math.PI*2;
@@ -401,9 +408,12 @@
     STAGE.w = w; STAGE.h = h;
     // 手機直式螢幕越窄長，背景的森林頂冠就會佔掉越多畫面，動物跟著顯得又小又遠。
     // 用「額外縮放」把鏡頭多拉近一點，長寬比越誇張（越窄長）就拉得越近，角色跟字級也跟著放大。
+    // 背景縮放（STAGE.zoom）跟角色／字級縮放（charFactor）分開算：
+    // 背景拉太近森林景會露不夠，但角色跟文字要能大膽放大到使用者指定的手機尺寸。
     var aspect = h / w;
-    STAGE.zoom = aspect > 1.2 ? Math.min(2.4, 1 + (aspect - 1.2) * 1.0) : 1;
-    STAGE.scale = Math.max(0.6, Math.min(1.6, (w/760) * STAGE.zoom));
+    STAGE.zoom = aspect > 1.2 ? Math.min(1.6, 1 + (aspect - 1.2) * 0.5) : 1;
+    var charFactor = aspect > 1.0 ? Math.min(2.6, 1 + (aspect - 1.0) * 1.3) : 1;
+    STAGE.scale = Math.max(0.8, Math.min(2.5, (w/760) * charFactor));
     STAGE.anchorX = w * 0.78;
     STAGE.anchorY = h * 0.70;
     STAGE.spacing = 192 * STAGE.scale; // 要大於排隊動物實際畫出的寬度，避免互相重疊黏在一起
@@ -479,6 +489,7 @@
     var s = Q.speakerActor; if(!s) return;
     var role = byId(ROLES, s.roleId); var topic = byId(TOPICS, s.topicId);
     $('b-role').textContent = role ? role.name : '';
+    $('b-name').textContent = s.name || '匿名家人';
     $('b-species').textContent = role ? role.animal : '';
     $('b-topic').textContent = topic ? ('#'+topic.label) : '';
     $('b-faith').textContent = s.faith || '';
@@ -569,6 +580,24 @@
     }
   }
 
+  // 提問框卡片要跟著「目前講者」浮動在他頭頂正上方，每格重新計算一次位置
+  var billboardWrapEl = $('billboard-wrap');
+  function positionBillboard(podiumX, groundY){
+    var s = Q.speakerActor; if(!s || !billboardWrapEl) return;
+    var rp = s.renderProps();
+    var screenX = podiumX + s.x;
+    var footY = groundY + s.y + rp.bobY;
+    var targetH = 230 * STAGE.scale * rp.scale;
+    var headY = footY - targetH;
+    var gap = 14 * STAGE.scale;
+    var wrapHalf = billboardWrapEl.offsetWidth / 2 || 160;
+    var clampedX = Math.max(wrapHalf + 10, Math.min(STAGE.w - wrapHalf - 10, screenX));
+    var minTop = 96; // 避免蓋到左上角標題列／右上角選單
+    var clampedY = Math.max(minTop, headY - gap);
+    billboardWrapEl.style.left = clampedX + 'px';
+    billboardWrapEl.style.top = clampedY + 'px';
+  }
+
   function renderLoop(){
     try{
       // 自我校正：如果畫布版面大小跟畫布內部解析度對不上（常發生在剛載入、
@@ -598,6 +627,7 @@
       var podiumX = STAGE.anchorX + Q.cameraX;
       Q.exitingActors.forEach(function(a){ drawActor(a, podiumX, groundY); });
       for(var i=Q.actors.length-1; i>=0; i--){ drawActor(Q.actors[i], podiumX, groundY); }
+      positionBillboard(podiumX, groundY);
     }catch(err){
       // 任何單一影格畫圖失敗都不該讓整個動畫停擺，記錄下來、下一影格繼續跑
       if(window.console) console.error('renderLoop error', err);
@@ -655,7 +685,7 @@
     filterBar.appendChild(all);
     TOPICS.forEach(function(t){
       var b = document.createElement('button');
-      b.type='button'; b.className='filter-item'; b.textContent=t.icon+' '+t.label;
+      b.type='button'; b.className='filter-item'; b.textContent=t.label;
       b.addEventListener('click', function(){ setFilter(t.id, b); });
       filterBar.appendChild(b);
     });
@@ -704,7 +734,7 @@
   TOPICS.forEach(function(t){
     var row = document.createElement('div');
     row.className='topic-row';
-    row.innerHTML = '<span class="ico">'+t.icon+'</span><span class="tx">'+t.label+'</span>';
+    row.innerHTML = '<span class="tx">'+t.label+'</span>';
     row.addEventListener('click', function(){
       state.topicId=t.id; state.sub=null;
       Array.prototype.forEach.call(topicListEl.children, function(c){ c.classList.remove('sel'); });
@@ -770,7 +800,7 @@
   function finishQuiz(){
     quizOverlay.classList.remove('open');
     var role = byId(ROLES, state.roleId);
-    insertUserActor({ roleId:state.roleId, topicId:state.topicId, sub:state.sub, faith:state.q4, question:state.q3 });
+    insertUserActor({ name:state.name, roleId:state.roleId, topicId:state.topicId, sub:state.sub, faith:state.q4, question:state.q3 });
     showToast('已加入隊伍，正在登台發聲！');
     postSubmission(role);
     openUgc(role);
@@ -810,7 +840,7 @@
       c.fillText('THE HOPE CHURCH', W-56, 86);
       var panelX=56, panelW=W-112, panelY=150;
       c.textAlign='left'; c.font='700 30px "Noto Sans TC", sans-serif'; c.fillStyle='#C99A42';
-      c.fillText('✨ 神正挑旺他', panelX+34, panelY+58);
+      c.fillText('神正挑旺他', panelX+34, panelY+58);
       c.font='700 44px "Noto Serif TC", serif'; c.fillStyle='#ffffff';
       var q4 = state.q4 || '一起走進新的季節';
       var lineH=58;
@@ -835,7 +865,7 @@
         var bx=56, bw2=W-112, bh2=150, by=H-bh2-70;
         roundRect(c, bx, by, bw2, bh2, 24); c.fillStyle='rgba(38,40,26,0.30)'; c.fill();
         c.textAlign='left'; c.font='700 24px "Noto Sans TC", sans-serif'; c.fillStyle='#F1EEE4';
-        c.fillText('💬 他的真實提問', bx+28, by+46);
+        c.fillText('他的真實提問', bx+28, by+46);
         c.font='400 26px "Noto Sans TC", sans-serif'; c.fillStyle='rgba(255,255,255,0.92)';
         wrapText(c, state.q3, bx+28, by+84, bw2-56, 34);
       }
