@@ -382,7 +382,11 @@
   var STAGE = { w:0, h:0, scale:1, anchorX:0, anchorY:0, spacing:130, exitX:400, queueY:90 };
   function updateStageMetrics(w, h){
     STAGE.w = w; STAGE.h = h;
-    STAGE.scale = Math.max(0.5, Math.min(1, w/760));
+    // 手機直式螢幕越窄長，背景的森林頂冠就會佔掉越多畫面，動物跟著顯得又小又遠。
+    // 用「額外縮放」把鏡頭多拉近一點，長寬比越誇張（越窄長）就拉得越近，角色跟字級也跟著放大。
+    var aspect = h / w;
+    STAGE.zoom = aspect > 1.3 ? Math.min(1.9, 1 + (aspect - 1.3) * 0.6) : 1;
+    STAGE.scale = Math.max(0.55, Math.min(1.3, (w/760) * STAGE.zoom));
     STAGE.anchorX = w * 0.78;
     STAGE.anchorY = h * 0.70;
     STAGE.spacing = 192 * STAGE.scale; // 要大於排隊動物實際畫出的寬度，避免互相重疊黏在一起
@@ -499,7 +503,7 @@
   // 背景圖在裁切後通常比畫面寬／高，多出來的部分就是鏡頭可以平移、露出隊伍森林景的「餘裕」。
   // 這裡算出該餘裕範圍，背景會跟著鏡頭一起平移（而不是固定不動），拖曳時森林景會跟著動物一起側移。
   function computeBgFrame(w,h){
-    var scale = Math.max(w/bgStage.width, h/bgStage.height);
+    var scale = Math.max(w/bgStage.width, h/bgStage.height) * (STAGE.zoom||1);
     var dw = bgStage.width*scale, dh = bgStage.height*scale;
     var idealX = STAGE.anchorX - BG_FOCAL.x*dw;
     var idealY = STAGE.anchorY - BG_FOCAL.y*dh;
