@@ -510,8 +510,8 @@
     { name:'家豪', roleId:'congregation', topicId:'transit', sub:'汽機車停車資訊', faith:'新的季節，新的恩典。', question:'開車去的話，停車場車位夠嗎，需要提前預約嗎？' }
   ];
 
-  // 部署好 Google Apps Script 網頁應用程式後，把網址貼在這裡即可串接即時資料（留空＝原型展示模式）。
-  var GAS_ENDPOINT = '';
+  // 正式串接 Google Apps Script 試算表 Web App 網址
+  var GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxgrnBfkKe9rz5vxV7qR2Eu_5Qfn3hrEW-NmH817kh0qaZI42vTwptebVXXPC-lH2OxTA/exec';
 
   function $(id){ return document.getElementById(id); }
   function byId(list, id, key){ key=key||'id'; for(var i=0;i<list.length;i++){ if(list[i][key]===id) return list[i]; } return null; }
