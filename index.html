@@ -109,18 +109,18 @@
   /* ---------------- billboard ---------------- */
   /* 位置由 JS 每影格算出來、浮在目前講者頭頂正上方；這裡只給第一次畫面還沒就緒前的保底位置 */
   /* 實際 top/left 由 JS 的 positionBillboard() 每格動態校準到講者正上方；這裡只留初始預設值做 fallback。 */
-  .billboard-wrap{ position:absolute; top:112px; left:50%; transform:translate(-50%,-100%); width:92%; max-width:420px; z-index:9; pointer-events:auto; transition:left .25s ease, top .25s ease; }
-  .billboard{ padding:18px 18px 16px; display:flex; flex-direction:column; gap:9px; position:relative; }
-  .b-progress-track{ position:absolute; top:0; left:16px; right:16px; height:3px; background:rgba(46,53,36,0.1); border-radius:2px; overflow:hidden; }
+  .billboard-wrap{ position:absolute; top:112px; left:50%; transform:translate(-50%,-100%); width:86%; max-width:360px; z-index:9; pointer-events:auto; transition:left .25s ease, top .25s ease; }
+  .billboard{ padding:13px 14px 12px; display:flex; flex-direction:column; gap:6px; position:relative; }
+  .b-progress-track{ position:absolute; top:0; left:14px; right:14px; height:3px; background:rgba(46,53,36,0.1); border-radius:2px; overflow:hidden; }
   .b-progress-bar{ height:100%; width:100%; background:linear-gradient(90deg, var(--gold), var(--sage)); transform-origin:left center; }
-  .b-meta{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:3px; }
-  .b-speaker{ display:flex; align-items:center; gap:9px; min-width:0 }
-  .b-role{ font-size:13.5px; font-weight:800; letter-spacing:.03em; padding:5px 12px; border-radius:999px; background:var(--olive-panel); color:var(--cream); flex:none; }
-  .b-who{ display:flex; flex-direction:column; line-height:1.25; min-width:0; }
+  .b-meta{ display:flex; align-items:center; justify-content:space-between; gap:7px; margin-top:2px; }
+  .b-speaker{ display:flex; align-items:center; gap:8px; min-width:0 }
+  .b-role{ font-size:13.5px; font-weight:800; letter-spacing:.03em; padding:4px 10px; border-radius:999px; background:var(--olive-panel); color:var(--cream); flex:none; }
+  .b-who{ display:flex; flex-direction:column; line-height:1.2; min-width:0; }
   .b-name{ font-size:18px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .b-species{ font-size:13px; font-weight:600; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .b-topic{ font-size:13.5px; font-weight:700; color:var(--sage-deep); background:rgba(86,114,76,0.14); padding:5px 11px; border-radius:999px; white-space:nowrap; flex:none; }
-  .b-faith{ background:linear-gradient(135deg, #fef7ed, #faedd9); border:1px solid rgba(201,154,66,0.35); border-radius:12px; padding:10px 13px; }
+  .b-topic{ font-size:13.5px; font-weight:700; color:var(--sage-deep); background:rgba(86,114,76,0.14); padding:4px 9px; border-radius:999px; white-space:nowrap; flex:none; }
+  .b-faith{ background:linear-gradient(135deg, #fef7ed, #faedd9); border:1px solid rgba(201,154,66,0.35); border-radius:11px; padding:8px 11px; }
   :root[data-theme="dark"] .b-faith{ background:linear-gradient(135deg, rgba(201,154,66,0.18), rgba(201,154,66,0.1)); }
   .b-faith-h{ font-size:13px; font-weight:800; letter-spacing:.05em; color:var(--gold) }
   .b-faith-c{ font-family:var(--font-display); font-size:clamp(18px, 5vw, 21px); font-weight:700; line-height:1.5; color:#3d240c; margin-top:2px; }
@@ -619,7 +619,7 @@
     var footY = groundY + s.y + rp.bobY;
     var targetH = 230 * STAGE.scale * rp.scale;
     var headY = footY - targetH;
-    var gap = 14 * STAGE.scale;
+    var gap = 8 * STAGE.scale;
     var wrapHalf = billboardWrapEl.offsetWidth / 2 || 160;
     var clampedX = Math.max(wrapHalf + 10, Math.min(STAGE.w - wrapHalf - 10, screenX));
     var minTop = 96; // 避免蓋到左上角標題列／右上角選單
