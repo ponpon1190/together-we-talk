@@ -521,15 +521,17 @@
     { id:'space', label:'現場空間與交誼生活圈', options:['會後 Hang out 空間','內湖周邊聚餐美食','新朋友迎賓專區','服事同工休息與動線'] }
   ];
 
+  // demo:true 這幾筆是舞台一開始沒人排隊時用來撐場面的示範資料，不是真人填的，
+  // 計算議題比例時要排除，不然會混進假資料裡一起算
   var SAMPLE_SPEECHES = [
-    { name:'雅婷', roleId:'leader', topicId:'transit', sub:'捷運步行指引', faith:'這一步，我們一起走！', question:'捷運站走到新場地大概要幾分鐘？會有指引標示嗎？' },
-    { name:'志明', roleId:'serving_lead', topicId:'sunday', sub:'大廳每週現場受洗', faith:'相信神預備更大的空間與靈魂收割。', question:'受洗後濕身要去哪裡換裝？教會有預備浴巾嗎？' },
-    { name:'思涵', roleId:'member', topicId:'space', sub:'內湖周邊聚餐美食', faith:'期待新朋友越來越多，一起吃喝同行。', question:'主日結束後，附近有適合十人以上小組聚餐不趕人的餐廳嗎？' },
-    { name:'冠宇', roleId:'volunteer', topicId:'family', sub:'報到與接送動線', faith:'用微笑迎接每一個走進來的家人。', question:'Hope Kids 的接送動線會跟大廳主要人流分開嗎？' },
-    { name:'佳穎', roleId:'congregation', topicId:'weekday', sub:'實體裝備課程地點', faith:'帶著好奇，一起跨入新的恩典。', question:'週間的裝備課程會在內湖新場地，還是原本的地點？' },
-    { name:'柏翰', roleId:'member', topicId:'family', sub:'新教室空間與安全', faith:'神做奇妙事，一起期待。', question:'新教室的門禁和孩子交接流程會有什麼不同？' },
-    { name:'詩雅', roleId:'leader', topicId:'sunday', sub:'主日邀約與帶新朋友', faith:'成為他人的祝福，一起得地為業。', question:'如果想邀新朋友來新堂主日，有推薦的場次嗎？' },
-    { name:'家豪', roleId:'congregation', topicId:'transit', sub:'汽機車停車資訊', faith:'新的季節，新的恩典。', question:'開車去的話，停車場車位夠嗎，需要提前預約嗎？' }
+    { name:'雅婷', roleId:'leader', topicId:'transit', sub:'捷運步行指引', faith:'這一步，我們一起走！', question:'捷運站走到新場地大概要幾分鐘？會有指引標示嗎？', demo:true },
+    { name:'志明', roleId:'serving_lead', topicId:'sunday', sub:'大廳每週現場受洗', faith:'相信神預備更大的空間與靈魂收割。', question:'受洗後濕身要去哪裡換裝？教會有預備浴巾嗎？', demo:true },
+    { name:'思涵', roleId:'member', topicId:'space', sub:'內湖周邊聚餐美食', faith:'期待新朋友越來越多，一起吃喝同行。', question:'主日結束後，附近有適合十人以上小組聚餐不趕人的餐廳嗎？', demo:true },
+    { name:'冠宇', roleId:'volunteer', topicId:'family', sub:'報到與接送動線', faith:'用微笑迎接每一個走進來的家人。', question:'Hope Kids 的接送動線會跟大廳主要人流分開嗎？', demo:true },
+    { name:'佳穎', roleId:'congregation', topicId:'weekday', sub:'實體裝備課程地點', faith:'帶著好奇，一起跨入新的恩典。', question:'週間的裝備課程會在內湖新場地，還是原本的地點？', demo:true },
+    { name:'柏翰', roleId:'member', topicId:'family', sub:'新教室空間與安全', faith:'神做奇妙事，一起期待。', question:'新教室的門禁和孩子交接流程會有什麼不同？', demo:true },
+    { name:'詩雅', roleId:'leader', topicId:'sunday', sub:'主日邀約與帶新朋友', faith:'成為他人的祝福，一起得地為業。', question:'如果想邀新朋友來新堂主日，有推薦的場次嗎？', demo:true },
+    { name:'家豪', roleId:'congregation', topicId:'transit', sub:'汽機車停車資訊', faith:'新的季節，新的恩典。', question:'開車去的話，停車場車位夠嗎，需要提前預約嗎？', demo:true }
   ];
 
   // 正式串接 Google Apps Script 試算表 Web App 網址
@@ -875,23 +877,22 @@
       closeFilterDropdown();
     }
   });
+  // 議題比例只能算「真人實際填寫」的資料，示範資料（demo:true）跟亂數權重都不算進去，
+  // 這樣有新人送出問卷、或從後台載入真實資料時，比例才會跟著真實異動。
   function getTopicPercentages(){
     var counts = {};
     TOPICS.forEach(function(t){ counts[t.id] = 0; });
     var total = 0;
     SAMPLE_SPEECHES.forEach(function(s){
+      if(s.demo) return;
       if(counts.hasOwnProperty(s.topicId)){
         counts[s.topicId]++;
         total++;
       }
     });
-    var baseWeights = { transit: 38, sunday: 28, family: 24, weekday: 18, space: 14 };
-    var grandTotal = total;
-    TOPICS.forEach(function(t){ grandTotal += (baseWeights[t.id] || 10); });
     var pcts = {};
     TOPICS.forEach(function(t){
-      var c = (counts[t.id] || 0) + (baseWeights[t.id] || 10);
-      pcts[t.id] = Math.round((c / grandTotal) * 100);
+      pcts[t.id] = total > 0 ? Math.round((counts[t.id] / total) * 100) : 0;
     });
     return pcts;
   }
