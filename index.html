@@ -849,7 +849,7 @@
 
   /* ================= DRAG HINT ================= */
   var dragHintEl = $('drag-hint');
-  var dragHintTimer = setTimeout(hideDragHint, 6000);
+  var dragHintTimer = setTimeout(hideDragHint, 10000);
   function hideDragHint(){
     clearTimeout(dragHintTimer);
     dragHintEl.classList.add('hide');
