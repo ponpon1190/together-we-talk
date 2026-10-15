@@ -1125,22 +1125,26 @@
       var cx = pillX + pillW/2, cy = pillY + pillH/2;
 
       c.save();
-      // 先用接近原本膠囊底色的實色蓋掉舊文字，範圍就是原本那顆膠囊自己的大小，不會超出去
+      // 先用接近原本膠囊底色的實色蓋掉舊文字，範圍要用原本那顆膠囊「完整」的大小蓋，不會露出殘影
       c.fillStyle = 'rgba(28,30,20,0.96)';
       roundRect(c, pillX, pillY, pillW, pillH, pillH/2);
       c.fill();
       c.fillStyle = 'rgba(40,43,28,0.78)';
       roundRect(c, pillX, pillY, pillW, pillH, pillH/2);
       c.fill();
+      // 視覺上看得到的膠囊（白色描邊那圈）改成比蓋底色的範圍窄一點，底色顏色一樣所以邊緣會自然融合，
+      // 不會露出破綻，但看起來會比原本窄一些
+      var visualPillW = Math.max(pillH, pillW - 36*sx);
+      var visualPillX = cx - visualPillW/2;
       c.strokeStyle = 'rgba(255,255,255,0.22)';
       c.lineWidth = 1.5*sx;
-      roundRect(c, pillX, pillY, pillW, pillH, pillH/2);
+      roundRect(c, visualPillX, pillY, visualPillW, pillH, pillH/2);
       c.stroke();
 
-      // 姓名加角色可能比原本「・角色」這幾個字長，字級自動縮小到能放進原本的框，不會讓膠囊變寬去擠到旁邊
+      // 姓名加角色可能比原本「・角色」這幾個字長，字級自動縮小到能放進視覺上的窄框，不會超出邊框
       var label = (name || '朋友') + '・' + role.name;
       var padX = 20*sx;
-      var maxTextW = pillW - padX*2;
+      var maxTextW = visualPillW - padX*2;
       var fontPx = Math.round(26*sy);
       var minFontPx = Math.round(14*sy);
       c.textAlign = 'center'; c.textBaseline = 'middle';
