@@ -507,7 +507,15 @@
     if(!Q.actors.length || Q.isTransitioning) return;
     Q.isTransitioning = true; setTimeout(function(){ Q.isTransitioning=false; }, 380);
     var cur = Q.actors.shift();
-    if(cur){ cur.isExiting=true; cur.targetX=STAGE.exitX; cur.targetY=0; Q.exitingActors.push(cur); }
+    if(cur){
+      cur.isExiting=true; cur.targetX=STAGE.exitX; cur.targetY=0; Q.exitingActors.push(cur);
+      // 確保登上過講台的角色資料存在於發聲池中，下台後未來可重複循環輪播
+      if(cur.faith){
+        var speechData = { name:cur.name, roleId:cur.roleId, topicId:cur.topicId, sub:cur.sub, faith:cur.faith, question:cur.question };
+        var exists = SAMPLE_SPEECHES.some(function(s){ return s.faith === cur.faith && s.name === cur.name; });
+        if(!exists) SAMPLE_SPEECHES.push(speechData);
+      }
+    }
     if(Q.actors.length){ Q.speakerActor = Q.actors[0]; realignQueue(); replenishTail(); }
     Q.speechTimer=0; updateBillboard();
   }
@@ -521,15 +529,17 @@
     actor.targetX = baseX; actor.targetY = STAGE.queueY;
     Q.actors.push(actor);
   }
-  function insertUserActor(data){
-    var actor = new StageActor(data, -(STAGE.spacing*6 + 200), STAGE.queueY); // 從排隊方向（左側、階梯下）直接插隊上台
-    actor.isExiting=false;
-    if(Q.speakerActor){ Q.speakerActor.isExiting=true; Q.speakerActor.targetX=STAGE.exitX; Q.speakerActor.targetY=0; Q.exitingActors.push(Q.speakerActor); Q.actors.shift(); }
-    Q.actors.unshift(actor);
-    Q.speakerActor = actor;
+  function enqueueUserActor(data){
+    // 1. 存入發聲池前端，確保未來任何時候都能重複輪播出來
+    SAMPLE_SPEECHES.unshift(data);
+    // 2. 加入當前隊伍尾端排隊，不粗暴打斷當前正在講話的家人
+    var lastIndex = Q.actors.length;
+    var baseX = -(STAGE.spacing*0.9 + lastIndex*STAGE.spacing);
+    var actor = new StageActor(data, baseX - STAGE.spacing*0.8, STAGE.queueY);
+    actor.targetX = baseX;
+    actor.targetY = STAGE.queueY;
+    Q.actors.push(actor);
     realignQueue();
-    Q.speechTimer=0;
-    updateBillboard();
   }
 
   function updateBillboard(){
@@ -896,8 +906,8 @@
     quizOverlay.classList.remove('open');
     var role = byId(ROLES, state.roleId);
     var subText = state.subs.join(' · ');
-    insertUserActor({ name:state.name, roleId:state.roleId, topicId:state.topicId, sub:subText, faith:state.q4, question:state.q3 });
-    showToast('已加入隊伍，正在登台發聲！');
+    enqueueUserActor({ name:state.name, roleId:state.roleId, topicId:state.topicId, sub:subText, faith:state.q4, question:state.q3 });
+    showToast('已為你排入發聲隊伍，稍後將依序登台！');
     postSubmission(role);
     openUgc(role);
     buildFilterBar();
