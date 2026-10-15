@@ -88,7 +88,7 @@
 
   /* 篩選下拉選單：從篩選鈕右下角彈出的直式清單卡，不是橫向 chips */
   .filter-dropdown{
-    position:absolute; top:calc(100% + 8px); right:0; width:min(230px, 72vw);
+    position:absolute; top:calc(100% + 8px); right:0; width:min(280px, 82vw);
     background:var(--glass-strong); border:1px solid var(--glass-br); border-radius:var(--radius-md);
     box-shadow:var(--shadow); backdrop-filter:blur(18px) saturate(1.1); -webkit-backdrop-filter:blur(18px) saturate(1.1);
     padding:10px; display:none; flex-direction:column; gap:4px; z-index:20;
@@ -97,9 +97,23 @@
   .filter-dropdown-head{ display:flex; align-items:center; justify-content:space-between; padding:2px 6px 6px; border-bottom:1px solid var(--line); margin-bottom:4px; }
   .filter-dropdown-head span{ font-size:13px; font-weight:800; color:var(--ink-soft); }
   .dropdown-close{ width:24px; height:24px; border-radius:50%; background:var(--olive-panel-soft); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink); font-size:13px; flex:none; }
-  .filter-bar{ display:flex; flex-direction:column; gap:3px; }
-  .filter-item{ font-family:var(--font-body); font-size:14.5px; font-weight:700; color:var(--ink); background:transparent; border:none; border-radius:10px; padding:10px 10px; cursor:pointer; text-align:left; }
+  .filter-bar{ display:flex; flex-direction:column; gap:4px; }
+  .filter-item{
+    font-family:var(--font-body); font-size:13.5px; font-weight:700; color:var(--ink);
+    background:transparent; border:none; border-radius:10px; padding:9px 11px;
+    cursor:pointer; text-align:left;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    transition:background .15s ease, color .15s ease;
+  }
+  .filter-item:hover{ background:var(--olive-panel-soft); }
+  .filter-item .filter-name{ flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .filter-item .filter-pct{
+    font-family:var(--font-label); font-size:11.5px; font-weight:700;
+    color:var(--sage-deep); background:rgba(86,114,76,0.14);
+    padding:2px 8px; border-radius:999px; flex:none;
+  }
   .filter-item.active{ background:var(--sage); color:#fff; }
+  .filter-item.active .filter-pct{ background:rgba(255,255,255,0.25); color:#fff; }
 
   .drag-hint{ position:absolute; bottom:calc(74px + env(safe-area-inset-bottom,0px)); left:50%; transform:translateX(-50%); background:var(--glass-strong); border:1px solid var(--glass-br); padding:6px 14px; border-radius:999px; font-size:12.5px; font-weight:600; color:var(--ink-soft); pointer-events:none; opacity:.95; transition:opacity .4s ease; white-space:nowrap; }
   .drag-hint.hide{ opacity:0; }
@@ -163,13 +177,15 @@
   .topic-row .ico{ font-size:16px }
   .topic-row .tx{ flex:1; font-weight:600; font-size:14.5px }
   .topic-row.sel{ border-color:var(--sage); background:rgba(86,114,76,0.16) }
-  .sub-wrap{ display:flex; flex-direction:column; gap:6px; animation:slide .3s ease; }
+  .sub-wrap{ display:flex; flex-direction:column; gap:6px; animation:slide .3s ease; margin-top:4px; padding-left:2px; }
   @keyframes slide{ from{opacity:0; transform:translateY(-6px)} to{opacity:1; transform:translateY(0)} }
-  .sub-opt{ padding:10px 12px; border-radius:var(--radius-sm); background:rgba(255,255,255,0.5); border:1.5px solid var(--line); font-size:14px; cursor:pointer; display:flex; align-items:center; gap:8px; }
+  .sub-hint{ font-size:12px; font-weight:700; color:var(--sage-deep); padding:2px 2px; }
+  .sub-opt{ padding:9px 12px; border-radius:var(--radius-sm); background:rgba(255,255,255,0.5); border:1.5px solid var(--line); font-size:14px; cursor:pointer; display:flex; align-items:center; gap:10px; transition:all .15s ease; user-select:none; }
   :root[data-theme="dark"] .sub-opt{ background:rgba(255,255,255,0.05) }
-  .sub-opt .dot{ width:14px; height:14px; border-radius:50%; border:1.5px solid var(--ink-soft); flex:none; }
+  .sub-opt .dot{ width:16px; height:16px; border-radius:4px; border:1.5px solid var(--ink-soft); flex:none; display:flex; align-items:center; justify-content:center; transition:all .15s ease; box-sizing:border-box; }
   .sub-opt.sel{ border-color:var(--sage); background:rgba(86,114,76,0.14); font-weight:700; }
-  .sub-opt.sel .dot{ border-color:var(--sage); background:var(--sage); box-shadow:inset 0 0 0 3px rgba(255,255,255,0.75); }
+  .sub-opt.sel .dot{ border-color:var(--sage); background:var(--sage); }
+  .sub-opt.sel .dot::after{ content:''; display:block; width:4px; height:8px; border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg); margin-top:-2px; }
 
   /* ---------------- UGC card modal ---------------- */
   .cardshell{ width:100%; max-width:280px; aspect-ratio:9/16; border-radius:22px; overflow:hidden; box-shadow:0 20px 50px rgba(30,36,22,0.35); position:relative; background:#eee; margin:0 auto; }
@@ -712,26 +728,57 @@
       closeFilterDropdown();
     }
   });
+  function getTopicPercentages(){
+    var counts = {};
+    TOPICS.forEach(function(t){ counts[t.id] = 0; });
+    var total = 0;
+    SAMPLE_SPEECHES.forEach(function(s){
+      if(counts.hasOwnProperty(s.topicId)){
+        counts[s.topicId]++;
+        total++;
+      }
+    });
+    var baseWeights = { transit: 38, sunday: 28, family: 24, weekday: 18, space: 14 };
+    var grandTotal = total;
+    TOPICS.forEach(function(t){ grandTotal += (baseWeights[t.id] || 10); });
+    var pcts = {};
+    TOPICS.forEach(function(t){
+      var c = (counts[t.id] || 0) + (baseWeights[t.id] || 10);
+      pcts[t.id] = Math.round((c / grandTotal) * 100);
+    });
+    return pcts;
+  }
+
   function buildFilterBar(){
     filterBar.innerHTML='';
-    var all = document.createElement('button');
-    all.type='button'; all.className='filter-item active'; all.textContent='全部發聲';
-    all.addEventListener('click', function(){ setFilter('all', all); });
-    filterBar.appendChild(all);
+    var pcts = getTopicPercentages();
     TOPICS.forEach(function(t){
       var b = document.createElement('button');
-      b.type='button'; b.className='filter-item'; b.textContent=t.label;
+      b.type = 'button';
+      b.className = 'filter-item' + (Q.activeTopicId === t.id ? ' active' : '');
+      b.innerHTML = '<span class="filter-name">' + t.label + '</span><span class="filter-pct">' + (pcts[t.id] || 0) + '%</span>';
       b.addEventListener('click', function(){ setFilter(t.id, b); });
       filterBar.appendChild(b);
     });
   }
+
   function setFilter(topicId, btn){
-    Q.activeTopicId = topicId;
-    Array.prototype.forEach.call(filterBar.children, function(c){ c.classList.remove('active'); });
-    btn.classList.add('active');
+    if(Q.activeTopicId === topicId){
+      Q.activeTopicId = 'all';
+      btn.classList.remove('active');
+      $('filter-toggle').textContent = '篩選議題';
+      $('filter-toggle').classList.remove('active');
+    } else {
+      Q.activeTopicId = topicId;
+      Array.prototype.forEach.call(filterBar.children, function(c){ c.classList.remove('active'); });
+      btn.classList.add('active');
+      var topic = byId(TOPICS, topicId);
+      $('filter-toggle').textContent = topic ? topic.label : '篩選議題';
+      $('filter-toggle').classList.add('active');
+    }
     closeFilterDropdown();
     for(var i=1;i<Q.actors.length;i++){
-      var pool = poolForTopic(topicId);
+      var pool = poolForTopic(Q.activeTopicId);
       var fresh = pool[Math.floor(Math.random()*pool.length)];
       Q.actors[i].topicId = fresh.topicId; Q.actors[i].sub = fresh.sub;
       Q.actors[i].faith = fresh.faith; Q.actors[i].question = fresh.question;
@@ -739,7 +786,7 @@
   }
 
   /* ================= QUIZ MODAL ================= */
-  var state = { roleId:null, name:'', topicId:null, sub:null, q3:'', q4:'', q5:'' };
+  var state = { roleId:null, name:'', topicId:null, subs:[], q3:'', q4:'', q5:'' };
   var curStep = 1, TOTAL_STEPS = 5;
   var quizOverlay = $('quiz-overlay');
   var titles = [
@@ -771,26 +818,39 @@
     row.className='topic-row';
     row.innerHTML = '<span class="tx">'+t.label+'</span>';
     row.addEventListener('click', function(){
-      state.topicId=t.id; state.sub=null;
+      state.topicId=t.id;
+      state.subs=[];
       Array.prototype.forEach.call(topicListEl.children, function(c){ c.classList.remove('sel'); });
       row.classList.add('sel');
       renderSubOptions(t);
     });
     topicListEl.appendChild(row);
   });
+
   function renderSubOptions(topic){
     subWrap.hidden=false; subWrap.innerHTML='';
+    var hint = document.createElement('div');
+    hint.className = 'sub-hint';
+    hint.textContent = '請勾選你關心的具體項目（可複選）：';
+    subWrap.appendChild(hint);
     topic.options.forEach(function(opt){
-      var o=document.createElement('div'); o.className='sub-opt';
+      var o=document.createElement('div');
+      o.className='sub-opt' + (state.subs.indexOf(opt)!==-1 ? ' sel' : '');
       o.innerHTML='<span class="dot"></span><span>'+opt+'</span>';
       o.addEventListener('click', function(){
-        state.sub=opt;
-        Array.prototype.forEach.call(subWrap.children, function(c){ c.classList.remove('sel'); });
-        o.classList.add('sel');
+        var idx = state.subs.indexOf(opt);
+        if(idx !== -1){
+          state.subs.splice(idx, 1);
+          o.classList.remove('sel');
+        } else {
+          state.subs.push(opt);
+          o.classList.add('sel');
+        }
       });
       subWrap.appendChild(o);
     });
   }
+
   function bindCounter(inputId,countId,key){
     var el=$(inputId);
     el.addEventListener('input', function(){ state[key]=el.value; $(countId).textContent=el.value.length; });
@@ -809,7 +869,7 @@
   }
   function validateStep(n){
     if(n===1) return !!state.roleId && state.name.trim().length>0;
-    if(n===2) return !!state.topicId && !!state.sub;
+    if(n===2) return !!state.topicId && Array.isArray(state.subs) && state.subs.length>0;
     if(n===4) return state.q4.trim().length>0;
     if(n===5) return state.q5.trim().length>0;
     return true;
@@ -835,10 +895,12 @@
   function finishQuiz(){
     quizOverlay.classList.remove('open');
     var role = byId(ROLES, state.roleId);
-    insertUserActor({ name:state.name, roleId:state.roleId, topicId:state.topicId, sub:state.sub, faith:state.q4, question:state.q3 });
+    var subText = state.subs.join(' · ');
+    insertUserActor({ name:state.name, roleId:state.roleId, topicId:state.topicId, sub:subText, faith:state.q4, question:state.q3 });
     showToast('已加入隊伍，正在登台發聲！');
     postSubmission(role);
     openUgc(role);
+    buildFilterBar();
   }
 
   /* ================= UGC CARD ================= */
@@ -907,7 +969,9 @@
       var topic = byId(TOPICS, state.topicId);
       if(topic){
         c.textAlign='left'; c.font='400 22px Jost, sans-serif'; c.fillStyle='rgba(255,255,255,0.75)';
-        c.fillText('#'+(state.sub||topic.label), 56, H-30);
+        var subText = (state.subs && state.subs.length) ? state.subs.join(' · ') : topic.label;
+        if(subText.length > 22) subText = subText.slice(0, 21) + '…';
+        c.fillText('#'+subText, 56, H-30);
       }
     }
   }
@@ -955,7 +1019,7 @@
     var topic = byId(TOPICS, state.topicId);
     var payload = {
       name: state.name, roleId: state.roleId, roleName: role.name,
-      topicPrimary: topic ? topic.label : '', topicSecondary: state.sub||'',
+      topicPrimary: topic ? topic.label : '', topicSecondary: (state.subs && state.subs.length) ? state.subs.join('、') : '',
       q3Question: state.q3||'', q4Faith: state.q4||'', q5Prayer: state.q5||''
     };
     fetch(GAS_ENDPOINT, { method:'POST', body: JSON.stringify(payload) }).catch(function(){});
@@ -969,6 +1033,7 @@
           return { roleId:d.roleId, topicId: topicIdByLabel(d.topicPrimary)||'transit', sub:d.topicSecondary, faith:d.q4Faith||'一起走進新的季節', question:'' };
         });
         SAMPLE_SPEECHES = mapped.concat(SAMPLE_SPEECHES);
+        buildFilterBar();
       }
     }).catch(function(){});
   }
