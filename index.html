@@ -187,14 +187,48 @@
   .sub-opt.sel .dot{ border-color:var(--sage); background:var(--sage); }
   .sub-opt.sel .dot::after{ content:''; display:block; width:4px; height:8px; border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg); margin-top:-2px; }
 
-  /* ---------------- UGC card modal ---------------- */
-  .cardshell{ width:100%; max-width:280px; aspect-ratio:9/16; border-radius:22px; overflow:hidden; box-shadow:0 20px 50px rgba(30,36,22,0.35); position:relative; background:#eee; margin:0 auto; }
-  .cardshell canvas{ width:100%; height:100%; display:block }
-  .reveal{ padding:4px 2px 0; display:flex; flex-direction:column; gap:8px; }
-  .reveal .tag{ align-self:flex-start; font-family:var(--font-label); letter-spacing:.14em; font-size:11.5px; background:var(--olive-panel); color:var(--cream); padding:5px 12px; border-radius:999px; }
-  .reveal h3{ font-size:17.5px }
-  .reveal p{ font-size:13.5px; line-height:1.7; color:var(--ink-soft); margin:0; }
-  .reveal p.quote{ color:var(--ink); background:var(--olive-panel-soft); padding:8px 10px; border-radius:var(--radius-sm); border-left:3px solid var(--gold); }
+  /* ---------------- 專屬同行結果頁 (6 大區塊) ---------------- */
+  .modal-result{ width:100%; max-width:480px; max-height:92vh; max-height:92dvh; background:#FCFAF6; border-radius:28px; box-shadow:0 25px 60px rgba(10,18,6,0.35); overflow:hidden; display:flex; flex-direction:column; border:1px solid rgba(255,255,255,0.85); }
+  .modal-result-head{ padding:22px 24px 14px; display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid rgba(40,50,30,0.06); }
+  .result-head-title{ font-size:20.5px; font-weight:900; line-height:1.35; color:var(--ink); letter-spacing:-0.01em; }
+  .result-head-sub{ font-size:13px; color:var(--ink-soft); margin-top:5px; line-height:1.45; }
+  .modal-result-body{ padding:16px 24px 34px; display:flex; flex-direction:column; gap:22px; overflow-y:auto; flex:1; -webkit-overflow-scrolling:touch; }
+
+  /* 區塊 2：你的專屬同行圖卡 */
+  .result-card-section{ display:flex; flex-direction:column; align-items:center; }
+  .result-card-title{ display:flex; align-items:center; gap:8px; font-size:14.5px; font-weight:800; color:#496342; margin-bottom:14px; letter-spacing:0.04em; }
+  .card-img-wrap{ width:100%; max-width:280px; aspect-ratio:9/16; border-radius:22px; overflow:hidden; box-shadow:0 18px 40px rgba(25,35,15,0.26); background:#e0e0e0; flex:none; }
+  .card-img-wrap img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .btn-result-download{ margin-top:18px; width:100%; max-width:310px; background:#455E3F; color:#ffffff !important; border:none; padding:12px 22px; border-radius:999px; font-size:15px; font-weight:700; cursor:pointer; box-shadow:0 6px 18px rgba(45,65,35,0.28); display:flex; align-items:center; justify-content:center; gap:8px; text-decoration:none; transition:background .15s ease, transform .1s ease; }
+  .btn-result-download:hover{ background:#384E33; }
+  .btn-result-download:active{ transform:scale(0.98); }
+  .btn-result-download svg{ width:16px; height:16px; fill:currentColor; }
+  .result-btn-subnote{ font-size:12px; color:var(--ink-soft); margin-top:7px; letter-spacing:.02em; }
+
+  /* 區塊 3：你的同行角色 */
+  .result-role-section{ position:relative; padding:6px 0 2px; overflow:hidden; }
+  .mountain-bg{ position:absolute; right:-10px; top:50%; transform:translateY(-45%); width:140px; opacity:0.38; pointer-events:none; }
+  .result-role-label{ font-size:12px; font-weight:700; color:var(--ink-soft); margin-bottom:3px; letter-spacing:0.04em; }
+  .result-role-title{ font-size:23px; font-weight:900; color:var(--ink); line-height:1.3; letter-spacing:-0.01em; }
+  .result-role-trait{ font-size:14.5px; color:var(--ink-soft); margin-top:6px; line-height:1.5; }
+
+  /* 區塊 4：個人化鼓勵 */
+  .result-encourage-section{ background:#EAF0E6; border-radius:18px; padding:18px 22px; position:relative; border:1px solid rgba(71,94,64,0.12); }
+  .leaf-deco{ position:absolute; right:14px; bottom:12px; width:32px; height:48px; opacity:0.45; pointer-events:none; }
+  .result-encourage-title{ font-size:15px; font-weight:900; color:var(--ink); margin-bottom:10px; }
+  .result-encourage-body{ font-size:13.5px; line-height:1.78; color:var(--ink); }
+  .result-encourage-highlight{ color:#284720; font-weight:800; display:block; margin:8px 0; font-size:14px; }
+
+  /* 區塊 5：一起，走進新季節 */
+  .result-faith-section{ padding:0 2px; }
+  .result-faith-title{ font-size:16px; font-weight:900; color:var(--ink); margin-bottom:8px; }
+  .result-faith-body{ font-size:13.5px; line-height:1.75; color:var(--ink-soft); }
+
+  /* 區塊 6：下一步 */
+  .result-next-section{ background:#ECEFEA; border-radius:16px; padding:18px 20px; border:1px solid rgba(40,50,30,0.09); position:relative; overflow:hidden; }
+  .trees-deco{ position:absolute; right:14px; bottom:10px; width:65px; opacity:0.45; pointer-events:none; }
+  .result-next-title{ font-size:14.5px; font-weight:900; color:var(--ink); margin-bottom:6px; }
+  .result-next-body{ font-size:13px; line-height:1.68; color:var(--ink-soft); padding-right:50px; }
 
   /* ---------------- toast ---------------- */
   .toast{ position:fixed; bottom:calc(22px + env(safe-area-inset-bottom,0px)); left:50%; transform:translateX(-50%) translateY(80px); background:var(--olive-panel); color:#fff; padding:10px 22px; border-radius:999px; font-size:13.5px; font-weight:700; opacity:0; transition:all .3s cubic-bezier(.16,1,.3,1); z-index:200; pointer-events:none; box-shadow:0 10px 24px rgba(0,0,0,.2); }
@@ -331,19 +365,80 @@
   </div>
 </div>
 
-<!-- UGC card modal -->
+<!-- 專屬同行結果頁 (6 大區塊) -->
 <div class="overlay" id="ugc-overlay">
-  <div class="modal">
-    <div class="modal-head">
-      <h2 class="modal-title">你的專屬圖卡已生成</h2>
+  <div class="modal modal-result">
+    <!-- 區塊 1｜感謝訊息 -->
+    <div class="modal-head modal-result-head">
+      <div>
+        <h2 class="result-head-title">謝謝你，讓我們聽見你的聲音！</h2>
+        <p class="result-head-sub">新的季節，因為有你一起參與而更加美好。</p>
+      </div>
       <button class="modal-close" id="ugc-close" type="button">X</button>
     </div>
-    <div class="modal-body">
-      <div class="cardshell"><canvas id="card-canvas" width="1080" height="1920"></canvas></div>
-      <div class="btn-row">
-        <button class="btn" id="download-btn" type="button">下載圖卡 →</button>
+
+    <div class="modal-body modal-result-body">
+      <!-- 區塊 2｜你的專屬同行圖卡 -->
+      <div class="result-card-section">
+        <div class="result-card-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#5A7851"><path d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z"/></svg>
+          <span>你的專屬同行圖卡</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#5A7851" style="transform: scaleX(-1);"><path d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z"/></svg>
+        </div>
+        <div class="card-img-wrap">
+          <img id="result-card-img" src="" alt="專屬同行圖卡">
+        </div>
+        <a class="btn-result-download" id="result-download-btn" href="#" download>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          <span>下載我的專屬圖卡</span>
+        </a>
+        <div class="result-btn-subnote">（可分享至 IG 限動）</div>
       </div>
-      <div class="reveal" id="reveal-panel"></div>
+
+      <!-- 區塊 3｜你的同行角色 -->
+      <div class="result-role-section">
+        <svg class="mountain-bg" viewBox="0 0 160 80" fill="none">
+          <path d="M10 75 L60 25 L90 55 L130 15 L160 75 Z" fill="#66785F" opacity="0.45"/>
+          <path d="M35 75 L80 38 L110 65 L150 28 L160 75 Z" fill="#4B5E45" opacity="0.6"/>
+        </svg>
+        <div class="result-role-label">你的同行角色</div>
+        <div class="result-role-title" id="result-role-title"></div>
+        <div class="result-role-trait" id="result-role-trait"></div>
+      </div>
+
+      <!-- 區塊 4｜個人化鼓勵 -->
+      <div class="result-encourage-section">
+        <svg class="leaf-deco" viewBox="0 0 40 60" fill="#4B6344">
+          <path d="M20 55 C20 35 35 25 35 10 C25 20 20 30 20 40 C20 30 15 20 5 10 C5 25 20 35 20 55 Z"/>
+        </svg>
+        <div class="result-encourage-title" id="result-encourage-title"></div>
+        <div class="result-encourage-body">
+          <span id="result-encourage-p1"></span>
+          <span class="result-encourage-highlight" id="result-encourage-highlight"></span>
+          <span id="result-encourage-p2"></span>
+        </div>
+      </div>
+
+      <!-- 區塊 5｜一起，走進新季節 -->
+      <div class="result-faith-section">
+        <div class="result-faith-title">一起，走進新季節</div>
+        <div class="result-faith-body">
+          謝謝你願意分享真實的聲音。你的每一份回應，都幫助我們更理解彼此的需要，也讓我們能一起預備教會的下一段旅程。
+        </div>
+      </div>
+
+      <!-- 區塊 6｜下一步 -->
+      <div class="result-next-section">
+        <svg class="trees-deco" viewBox="0 0 80 50" fill="none">
+          <path d="M50 45 L50 40 L60 40 L55 30 L63 30 L53 16 L50 16 L40 30 L48 30 L43 40 L50 40 Z" fill="#586E53"/>
+          <path d="M25 45 L25 42 L32 42 L28 34 L34 34 L27 22 L25 22 L18 34 L24 34 L20 42 L25 42 Z" fill="#6A8264"/>
+          <path d="M5 45 Q30 42 75 46" stroke="#8D9B87" stroke-width="1.5" stroke-dasharray="3,3"/>
+        </svg>
+        <div class="result-next-title">下一步｜邀請更多人一起同行</div>
+        <div class="result-next-body">
+          邀請一位你在乎的朋友，也來分享他的聲音。讓我們一起走進教會的新季節！
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -356,24 +451,39 @@
 
   /* ================= DATA ================= */
   var ROLES = [
-    { id:'leader', name:'小組長', animal:'台灣藍鵲', english:'FORMOSAN BLUE MAGPIE', cutout:'assets/magpie_cutout.png', standOffset:58,
-      trait:'團結護巢，不落下任何家人。',
-      action:'10/20 記得領取《同行包》，並在小組內主動發起「搬家 Q&A 對話」，幫助組員化解對新場地與新聚會時間的擔憂。',
-      encouragement:'帶領群體遷徙很不容易，神看見了你的用心。你不需完美解答所有場地問題，只要展現「我們一起走」的陪伴，神會親自吸引他們。' },
-    { id:'serving_lead', name:'服事領袖', animal:'台灣黑熊', english:'FORMOSAN BLACK BEAR', cutout:'assets/bear_cutout.png', standOffset:58,
+    { id:'serving_lead', name:'服事領袖', animal:'台灣黑熊', english:'FORMOSAN BLACK BEAR', cutout:'assets/bear_cutout.png', igCard:'assets/ig_card_serving_lead.png', standOffset:58,
       trait:'強壯穩重，團隊重量級基石。',
+      p1:'扛下流程重組與人力調度的壓力很吃重，但你是團隊最安心的靠山。',
+      highlight:'你現在鋪好的每一條路，都是未來承載神蹟的軌道，辛苦了！',
+      p2:'記得在忙碌中為自己保留安息的空間，神必親自加添你力量。',
       action:'準備參與異象佈達並盤點團隊人力，用你的安定感，陪伴團隊適應全新週末四場的班表與運作節奏。',
       encouragement:'扛下流程重組與人力調度的壓力很吃重，但你是團隊最安心的靠山。你現在鋪好的每一條路，都是未來承載神蹟的軌道，辛苦了！' },
-    { id:'member', name:'小組員', animal:'台灣梅花鹿', english:'FORMOSAN SIKA DEER', cutout:'assets/sikadeer_cutout.png', standOffset:0,
+    { id:'leader', name:'小組長', animal:'台灣藍鵲', english:'FORMOSAN BLUE MAGPIE', cutout:'assets/magpie_cutout.png', igCard:'assets/ig_card_leader.png', standOffset:58,
+      trait:'團結護巢，不落下任何家人。',
+      p1:'帶領群體遷徙很不容易，神看見了你的用心。你不需完美解答所有場地問題，',
+      highlight:'只要展現「我們一起走」的陪伴，神會親自吸引他們。',
+      p2:'放下追求完美的重擔，用你的愛與溫度，成為小組最溫暖的避風港。',
+      action:'10/20 記得領取《同行包》，並在小組內主動發起「搬家 Q&A 對話」，幫助組員化解對新場地與新聚會時間的擔憂。',
+      encouragement:'帶領群體遷徙很不容易，神看見了你的用心。你不需完美解答所有場地問題，只要展現「我們一起走」的陪伴，神會親自吸引他們。' },
+    { id:'member', name:'小組員', animal:'台灣梅花鹿', english:'FORMOSAN SIKA DEER', cutout:'assets/sikadeer_cutout.png', igCard:'assets/ig_card_member.png', standOffset:0,
       trait:'靈巧溫馴，習慣群體同行。',
+      p1:'換到新場地確實需要跨出舒適圈，但最美的風景從來不是場地本身，',
+      highlight:'而是跟你一起吃喝、一起歡笑同行的家人。',
+      p2:'帶著期待的心，在新空間裡建立更深厚的連結，享受神為你預備的豐盛恩典。',
       action:'發揮相聚本能，尋找 12 月內湖新場地周邊的美食或咖啡廳，自告奮勇為小組規劃搬家後的第一頓「迎新聚餐」！',
       encouragement:'換到新場地確實需要跨出舒適圈，但最美的風景從來不是場地本身，而是跟你一起吃喝、一起歡笑同行的家人。' },
-    { id:'volunteer', name:'服事夥伴', animal:'台灣犬', english:'FORMOSAN TAIWAN DOG', cutout:'assets/taiwandog_cutout.png', standOffset:58,
+    { id:'volunteer', name:'服事夥伴', animal:'台灣犬', english:'FORMOSAN TAIWAN DOG', cutout:'assets/taiwandog_cutout.png', igCard:'assets/ig_card_volunteer.png', standOffset:58,
       trait:'忠誠熱情，傳遞教會溫度的第一線。',
+      p1:'在變動中服事會消耗很多隱形能量，記得隨時回到神面前充電。',
+      highlight:'你的每一次熱情服事、每一個微笑，都在讓陌生的新空間充滿家的溫度。',
+      p2:'願神加倍祝福你的付出，在新季節中經歷前所未有的喜樂與滿足。',
       action:'留意近期的意願調查並回覆你的服事意願，準備在新場地用笑容迎接每一位走進大廳的家人，並享受我們為你預備的專屬 First Coffee。',
       encouragement:'在變動中服事會消耗很多隱形能量，記得隨時回到神面前充電。你的每一次熱情服事、每一個微笑，都在讓陌生的新空間充滿家的溫度。' },
-    { id:'congregation', name:'會眾朋友', animal:'台灣石虎', english:'FORMOSAN LEOPARD CAT', cutout:'assets/leopardcat_cutout.png', standOffset:58,
+    { id:'congregation', name:'會眾朋友', animal:'台灣石虎', english:'FORMOSAN LEOPARD CAT', cutout:'assets/leopardcat_cutout.png', igCard:'assets/ig_card_congregation.png', standOffset:58,
       trait:'靈敏敞開，探索新季節風景。',
+      p1:'每一次的跨越，神都預備了新的恩典。帶著你如石虎般的好奇與敞開，',
+      highlight:'期待在這個全新的空間裡，看見神要對你說的新故事。',
+      p2:'踏出這一步，讓神帶領你探索屬靈生命的新高度，滿載豐富的恩惠。',
       action:'現在就空下 12/5-12/6 的週末行事曆！發揮探索精神，邀請一位還沒來過教會的朋友，一起見證 Welcome Home 首週主日。',
       encouragement:'每一次的跨越，神都預備了新的恩典。帶著你如石虎般的好奇與敞開，期待在這個全新的空間裡，看見神要對你說的新故事。' }
   ];
@@ -913,109 +1023,79 @@
     buildFilterBar();
   }
 
-  /* ================= UGC CARD ================= */
+  /* ================= 專屬同行結果頁 (6 大區塊) ================= */
   var ugcOverlay = $('ugc-overlay');
-  $('ugc-close').addEventListener('click', function(){ ugcOverlay.classList.remove('open'); });
-
-  function wrapText(c, text, x, y, maxWidth, lineHeight){
-    var chars=text.split(''), line='', lines=[];
-    for(var i=0;i<chars.length;i++){
-      var test=line+chars[i];
-      if(c.measureText(test).width>maxWidth && line.length>0){ lines.push(line); line=chars[i]; } else { line=test; }
-    }
-    lines.push(line);
-    lines.forEach(function(l,idx){ c.fillText(l, x, y+idx*lineHeight); });
-    return lines.length;
+  var ugcClose = $('ugc-close');
+  if(ugcClose){
+    ugcClose.addEventListener('click', function(){ ugcOverlay.classList.remove('open'); });
   }
-
-  function drawCard(role){
-    var canvasEl = $('card-canvas'); var c = canvasEl.getContext('2d');
-    var W=canvasEl.width, H=canvasEl.height;
-    var bg=new Image(), cutout=new Image(); var loaded=0;
-    function ready(){ loaded++; if(loaded===2) render(); }
-    bg.onload=ready; cutout.onload=ready;
-    bg.src='assets/stage_background_main.webp'; cutout.src=role.cutout;
-    function render(){
-      var scale = Math.max(W/bg.width, H/bg.height);
-      var bw=bg.width*scale, bh=bg.height*scale;
-      c.drawImage(bg, (W-bw)/2, (H-bh)/2-60, bw, bh);
-      var grad=c.createLinearGradient(0,0,0,H);
-      grad.addColorStop(0,'rgba(20,24,14,0.38)'); grad.addColorStop(0.32,'rgba(20,24,14,0.02)');
-      grad.addColorStop(0.68,'rgba(20,24,14,0.05)'); grad.addColorStop(1,'rgba(14,16,10,0.62)');
-      c.fillStyle=grad; c.fillRect(0,0,W,H);
-      c.textAlign='right'; c.fillStyle='rgba(255,255,255,0.92)'; c.font='400 26px Jost, sans-serif';
-      c.fillText('THE HOPE CHURCH', W-56, 86);
-      var panelX=56, panelW=W-112, panelY=150;
-      c.textAlign='left'; c.font='700 30px "Noto Sans TC", sans-serif'; c.fillStyle='#C99A42';
-      c.fillText('神正挑旺他', panelX+34, panelY+58);
-      var q4 = state.q4 || '一起走進新的季節';
-      var fontSize = q4.length > 32 ? 36 : (q4.length > 20 ? 40 : 44);
-      var lineH = Math.round(fontSize * 1.35);
-      c.font = '700 ' + fontSize + 'px "Noto Serif TC", serif';
-      c.fillStyle = '#ffffff';
-      var lines = wrapText(c, q4, panelX+34, panelY+118, panelW-68, lineH);
-      var panelH = 150 + lines*lineH - 20;
-      c.save(); c.globalCompositeOperation='destination-over';
-      roundRect(c, panelX, panelY, panelW, panelH, 26); c.fillStyle='rgba(38,40,26,0.46)'; c.fill(); c.restore();
-      var cw=W*0.72, ch=cw*(cutout.height/cutout.width), cx=(W-cw)/2, cy=H*0.47;
-      if(cy+ch>H*0.92){ ch=H*0.92-cy; cw=ch*(cutout.width/cutout.height); cx=(W-cw)/2; }
-      c.save(); c.shadowColor='rgba(10,14,6,0.45)'; c.shadowBlur=40; c.shadowOffsetY=18;
-      c.drawImage(cutout, cx, cy, cw, ch); c.restore();
-      c.textAlign='center'; c.font='900 56px "Noto Serif TC", serif'; c.fillStyle='#ffffff';
-      c.fillText(role.animal, W/2, cy-26);
-      c.font='400 20px Jost, sans-serif'; c.fillStyle='rgba(255,255,255,0.78)';
-      c.fillText(role.english, W/2, cy+10);
-      var pillText=(state.name||'朋友')+' · '+role.name;
-      c.font='700 28px "Noto Sans TC", sans-serif';
-      var pw=c.measureText(pillText).width+64, px=(W-pw)/2, py=cy+34;
-      roundRect(c, px, py, pw, 54, 27); c.fillStyle='rgba(86,114,76,0.88)'; c.fill();
-      c.fillStyle='#ffffff'; c.fillText(pillText, W/2, py+37);
-      if(state.q3 && state.q3.trim().length>0){
-        var bx=56, bw2=W-112, bh2=150, by=H-bh2-70;
-        roundRect(c, bx, by, bw2, bh2, 24); c.fillStyle='rgba(38,40,26,0.30)'; c.fill();
-        c.textAlign='left'; c.font='700 24px "Noto Sans TC", sans-serif'; c.fillStyle='#F1EEE4';
-        c.fillText('他的真實提問', bx+28, by+46);
-        c.font='400 26px "Noto Sans TC", sans-serif'; c.fillStyle='rgba(255,255,255,0.92)';
-        wrapText(c, state.q3, bx+28, by+84, bw2-56, 34);
-      }
-      var topic = byId(TOPICS, state.topicId);
-      if(topic){
-        c.textAlign='left'; c.font='400 22px Jost, sans-serif'; c.fillStyle='rgba(255,255,255,0.75)';
-        var subText = (state.subs && state.subs.length) ? state.subs.join(' · ') : topic.label;
-        if(subText.length > 22) subText = subText.slice(0, 21) + '…';
-        c.fillText('#'+subText, 56, H-30);
-      }
-    }
-  }
-  function renderReveal(role){
-    $('reveal-panel').innerHTML =
-      '<div class="tag">YOUR SPIRIT ANIMAL</div>' +
-      '<h3>'+(state.name||'朋友')+' · '+role.name+' → '+role.animal+'</h3>' +
-      '<p>'+role.trait+'</p>' +
-      '<p><b style="color:var(--sage-deep)">下一步：</b>'+role.action+'</p>' +
-      '<p class="quote">'+role.encouragement+'</p>';
-  }
-  function openUgc(role){
-    ugcOverlay.classList.add('open');
-    drawCard(role);
-    renderReveal(role);
-  }
-
-  var downloadsCap = null;
-  if(window.claude && window.claude.use){
-    window.claude.use('downloads').then(function(d){ downloadsCap = d; }).catch(function(){ downloadsCap=null; });
-  }
-  $('download-btn').addEventListener('click', function(){
-    var canvasEl = $('card-canvas');
-    canvasEl.toBlob(async function(blob){
-      if(!blob) return;
-      if(downloadsCap){
-        try{ await downloadsCap.save({ filename:'一起聽見_'+(state.name||'我的卡片')+'.png', data: blob }); return; }catch(e){}
-      }
-      var url = URL.createObjectURL(blob);
-      window.open(url, '_blank');
-    }, 'image/png');
+  ugcOverlay.addEventListener('click', function(e){
+    if(e.target === ugcOverlay) ugcOverlay.classList.remove('open');
   });
+
+  function openUgc(role){
+    if(!role) return;
+    var name = state.name || '朋友';
+    var imgEl = $('result-card-img');
+    if(imgEl){
+      imgEl.src = role.igCard;
+      imgEl.alt = name + ' 的專屬同行圖卡';
+    }
+    var dlBtn = $('result-download-btn');
+    if(dlBtn){
+      dlBtn.href = role.igCard;
+      dlBtn.setAttribute('download', '一起聽見_' + name + '_' + role.animal + '.png');
+    }
+    var roleTitleEl = $('result-role-title');
+    if(roleTitleEl){
+      roleTitleEl.textContent = name + '，你是' + role.animal + '！';
+    }
+    var roleTraitEl = $('result-role-trait');
+    if(roleTraitEl){
+      roleTraitEl.textContent = role.trait;
+    }
+    var encTitleEl = $('result-encourage-title');
+    if(encTitleEl){
+      encTitleEl.textContent = '給' + role.name + '的悄悄話';
+    }
+    var p1El = $('result-encourage-p1');
+    if(p1El) p1El.textContent = role.p1;
+    var hlEl = $('result-encourage-highlight');
+    if(hlEl) hlEl.textContent = role.highlight;
+    var p2El = $('result-encourage-p2');
+    if(p2El) p2El.textContent = role.p2;
+
+    ugcOverlay.classList.add('open');
+  }
+
+  var resultDownloadBtn = $('result-download-btn');
+  if(resultDownloadBtn){
+    resultDownloadBtn.addEventListener('click', function(e){
+      var targetUrl = this.getAttribute('href');
+      if(!targetUrl || targetUrl === '#') return;
+      // 若瀏覽器支援 download 屬性則會自動下載，若無法直接下載則在新分頁開高畫質圖
+      try {
+        fetch(targetUrl)
+          .then(function(res){ return res.blob(); })
+          .then(function(blob){
+            var blobUrl = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = resultDownloadBtn.getAttribute('download') || '一起聽見_專屬同行圖卡.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(function(){ URL.revokeObjectURL(blobUrl); }, 1000);
+          })
+          .catch(function(){
+            window.open(targetUrl, '_blank');
+          });
+        e.preventDefault();
+      } catch(err){
+        // fallback to standard link download
+      }
+    });
+  }
 
   /* ================= TOAST ================= */
   var toastTimer=null;
