@@ -241,10 +241,10 @@
         <div class="brand-titles"><b>一起聽見</b><span>THE HOPE CHURCH · PHASE 1</span></div>
       </div>
       <div class="filter-wrap">
-        <button type="button" class="filter-toggle" id="filter-toggle">篩選議題</button>
+        <button type="button" class="filter-toggle" id="filter-toggle">議題</button>
         <div class="filter-dropdown" id="filter-dropdown">
           <div class="filter-dropdown-head">
-            <span>篩選議題</span>
+            <span>議題</span>
             <button type="button" class="dropdown-close" id="filter-close">X</button>
           </div>
           <div class="filter-bar" id="filter-bar"></div>
@@ -766,14 +766,14 @@
     if(Q.activeTopicId === topicId){
       Q.activeTopicId = 'all';
       btn.classList.remove('active');
-      $('filter-toggle').textContent = '篩選議題';
+      $('filter-toggle').textContent = '議題';
       $('filter-toggle').classList.remove('active');
     } else {
       Q.activeTopicId = topicId;
       Array.prototype.forEach.call(filterBar.children, function(c){ c.classList.remove('active'); });
       btn.classList.add('active');
       var topic = byId(TOPICS, topicId);
-      $('filter-toggle').textContent = topic ? topic.label : '篩選議題';
+      $('filter-toggle').textContent = topic ? topic.label : '議題';
       $('filter-toggle').classList.add('active');
     }
     closeFilterDropdown();
