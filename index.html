@@ -115,8 +115,10 @@
   .filter-item.active{ background:var(--sage); color:#fff; }
   .filter-item.active .filter-pct{ background:rgba(255,255,255,0.25); color:#fff; }
 
-  .drag-hint{ position:absolute; bottom:calc(74px + env(safe-area-inset-bottom,0px)); left:50%; transform:translateX(-50%); background:var(--glass-strong); border:1px solid var(--glass-br); padding:6px 14px; border-radius:999px; font-size:12.5px; font-weight:600; color:var(--ink-soft); pointer-events:none; opacity:.95; transition:opacity .4s ease; white-space:nowrap; }
+  .drag-hint{ position:absolute; bottom:calc(74px + env(safe-area-inset-bottom,0px)); left:50%; transform:translateX(-50%); background:var(--glass-strong); border:1px solid var(--glass-br); padding:8px 16px; border-radius:999px; font-size:13px; font-weight:700; color:var(--ink-soft); pointer-events:none; opacity:.97; transition:opacity .4s ease; white-space:nowrap; display:flex; align-items:center; gap:7px; box-shadow:0 6px 18px rgba(10,18,6,0.14); }
   .drag-hint.hide{ opacity:0; }
+  .drag-hint svg{ animation:dragHintSwipe 1.6s ease-in-out infinite; flex:none; }
+  @keyframes dragHintSwipe{ 0%,100%{ transform:translateX(-4px); opacity:.6 } 50%{ transform:translateX(4px); opacity:1 } }
 
   .hud-footer{ pointer-events:auto; max-width:720px; margin:0 auto; width:100%; display:flex; align-items:center; gap:10px; }
 
@@ -299,7 +301,10 @@
     </div>
   </header>
 
-  <div class="drag-hint" id="drag-hint">左右拖曳畫面，看看大家排隊等著發聲</div>
+  <div class="drag-hint" id="drag-hint">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 7 3 12 8 17"></polyline><polyline points="16 7 21 12 16 17"></polyline></svg>
+    <span>左右拖曳畫面，看看大家排隊等著發聲</span>
+  </div>
 
   <footer class="hud-footer">
     <button type="button" class="btn" id="cta-speak">我也要加入排隊，登台發聲 →</button>
@@ -469,40 +474,40 @@
   /* ================= DATA ================= */
   var ROLES = [
     { id:'serving_lead', name:'服事領袖', animal:'台灣黑熊', english:'FORMOSAN BLACK BEAR', cutout:'assets/bear_cutout.png', igCard:'assets/ig_card_serving_lead.png', standOffset:58,
-      trait:'強壯穩重，團隊重量級基石。',
-      p1:'扛下流程重組與人力調度的壓力很吃重，但你是團隊最安心的靠山。',
-      highlight:'你現在鋪好的每一條路，都是未來承載神蹟的軌道，辛苦了！',
-      p2:'記得在忙碌中為自己保留安息的空間，神必親自加添你力量。',
+      trait:'強壯穩重，是團隊最安心的靠山。',
+      p1:'謝謝你一直以來的付出與承擔。或許在帶領團隊的過程中，有許多需要協調、面對的挑戰，但你的穩定與陪伴，正成為身邊夥伴重要的支持。',
+      highlight:'新的季節，你不需要獨自扛起所有責任。',
+      p2:'願我們繼續彼此扶持、一起經歷神所預備的新事！',
       action:'準備參與異象佈達並盤點團隊人力，用你的安定感，陪伴團隊適應全新週末四場的班表與運作節奏。',
-      encouragement:'扛下流程重組與人力調度的壓力很吃重，但你是團隊最安心的靠山。你現在鋪好的每一條路，都是未來承載神蹟的軌道，辛苦了！' },
+      encouragement:'謝謝你一直以來的付出與承擔。或許在帶領團隊的過程中，有許多需要協調、面對的挑戰，但你的穩定與陪伴，正成為身邊夥伴重要的支持。新的季節，你不需要獨自扛起所有責任。願我們繼續彼此扶持、一起經歷神所預備的新事！' },
     { id:'leader', name:'小組長', animal:'台灣藍鵲', english:'FORMOSAN BLUE MAGPIE', cutout:'assets/magpie_cutout.png', igCard:'assets/ig_card_leader.png', standOffset:58,
-      trait:'團結護巢，不落下任何家人。',
-      p1:'帶領群體遷徙很不容易，神看見了你的用心。你不需完美解答所有場地問題，',
-      highlight:'只要展現「我們一起走」的陪伴，神會親自吸引他們。',
-      p2:'放下追求完美的重擔，用你的愛與溫度，成為小組最溫暖的避風港。',
+      trait:'熱情連結，是陪伴生命一起成長的同行者。',
+      p1:'謝謝你願意打開自己的生命，陪伴不同的人走過各樣的季節。或許有時候，你也會感到疲憊，不知道自己的付出是否真的帶來改變，但每一次真誠的關心、每一段用心的陪伴，都在人的生命中留下痕跡。',
+      highlight:'新的季節，你不需要擁有所有答案，只需要繼續與人同行。',
+      p2:'願神也在你陪伴別人的路上，不斷更新、堅固你的生命！',
       action:'10/20 記得領取《同行包》，並在小組內主動發起「搬家 Q&A 對話」，幫助組員化解對新場地與新聚會時間的擔憂。',
-      encouragement:'帶領群體遷徙很不容易，神看見了你的用心。你不需完美解答所有場地問題，只要展現「我們一起走」的陪伴，神會親自吸引他們。' },
+      encouragement:'謝謝你願意打開自己的生命，陪伴不同的人走過各樣的季節。或許有時候，你也會感到疲憊，不知道自己的付出是否真的帶來改變，但每一次真誠的關心、每一段用心的陪伴，都在人的生命中留下痕跡。新的季節，你不需要擁有所有答案，只需要繼續與人同行。願神也在你陪伴別人的路上，不斷更新、堅固你的生命！' },
     { id:'member', name:'小組員', animal:'台灣梅花鹿', english:'FORMOSAN SIKA DEER', cutout:'assets/sikadeer_cutout.png', igCard:'assets/ig_card_member.png', standOffset:0,
-      trait:'靈巧溫馴，習慣群體同行。',
-      p1:'換到新場地確實需要跨出舒適圈，但最美的風景從來不是場地本身，',
-      highlight:'而是跟你一起吃喝、一起歡笑同行的家人。',
-      p2:'帶著期待的心，在新空間裡建立更深厚的連結，享受神為你預備的豐盛恩典。',
+      trait:'溫柔真誠，為彼此的生命帶來美好的連結。',
+      p1:'謝謝你願意成為小組的一份子，讓別人有機會認識真實的你。或許你正在經歷生命中的改變，也可能還在摸索信仰與生活的方向，但每一次願意敞開、分享與彼此陪伴，都是很珍貴的一步。',
+      highlight:'新的季節，你不需要急著成為誰，只要勇敢走出屬於你的下一步。',
+      p2:'願你在這個群體中被愛、被接納，也繼續經歷神在你生命中的奇妙工作！',
       action:'發揮相聚本能，尋找 12 月內湖新場地周邊的美食或咖啡廳，自告奮勇為小組規劃搬家後的第一頓「迎新聚餐」！',
-      encouragement:'換到新場地確實需要跨出舒適圈，但最美的風景從來不是場地本身，而是跟你一起吃喝、一起歡笑同行的家人。' },
+      encouragement:'謝謝你願意成為小組的一份子，讓別人有機會認識真實的你。或許你正在經歷生命中的改變，也可能還在摸索信仰與生活的方向，但每一次願意敞開、分享與彼此陪伴，都是很珍貴的一步。新的季節，你不需要急著成為誰，只要勇敢走出屬於你的下一步。願你在這個群體中被愛、被接納，也繼續經歷神在你生命中的奇妙工作！' },
     { id:'volunteer', name:'服事夥伴', animal:'台灣犬', english:'FORMOSAN TAIWAN DOG', cutout:'assets/taiwandog_cutout.png', igCard:'assets/ig_card_volunteer.png', standOffset:58,
-      trait:'忠誠熱情，傳遞教會溫度的第一線。',
-      p1:'在變動中服事會消耗很多隱形能量，記得隨時回到神面前充電。',
-      highlight:'你的每一次熱情服事、每一個微笑，都在讓陌生的新空間充滿家的溫度。',
-      p2:'願神加倍祝福你的付出，在新季節中經歷前所未有的喜樂與滿足。',
+      trait:'忠心熱情，用每一次付出讓人感受到家的溫暖。',
+      p1:'謝謝你願意付出時間與心力，成為教會服事團隊的一份子。或許有些服事不一定被看見，有些預備也需要花上許多心思，但因為你的投入，讓更多人有機會在教會裡感受到歡迎、關心與愛。',
+      highlight:'新的季節，服事不只是我們為神做了什麼，更是我們一起經歷神正在做的事。',
+      p2:'願你在每一次付出中，也重新得力，享受與夥伴並肩服事的喜樂！',
       action:'留意近期的意願調查並回覆你的服事意願，準備在新場地用笑容迎接每一位走進大廳的家人，並享受我們為你預備的專屬 First Coffee。',
-      encouragement:'在變動中服事會消耗很多隱形能量，記得隨時回到神面前充電。你的每一次熱情服事、每一個微笑，都在讓陌生的新空間充滿家的溫度。' },
-    { id:'congregation', name:'會眾朋友', animal:'台灣石虎', english:'FORMOSAN LEOPARD CAT', cutout:'assets/leopardcat_cutout.png', igCard:'assets/ig_card_congregation.png', standOffset:58,
-      trait:'靈敏敞開，探索新季節風景。',
-      p1:'每一次的跨越，神都預備了新的恩典。帶著你如石虎般的好奇與敞開，',
-      highlight:'期待在這個全新的空間裡，看見神要對你說的新故事。',
-      p2:'踏出這一步，讓神帶領你探索屬靈生命的新高度，滿載豐富的恩惠。',
+      encouragement:'謝謝你願意付出時間與心力，成為教會服事團隊的一份子。或許有些服事不一定被看見，有些預備也需要花上許多心思，但因為你的投入，讓更多人有機會在教會裡感受到歡迎、關心與愛。新的季節，服事不只是我們為神做了什麼，更是我們一起經歷神正在做的事。願你在每一次付出中，也重新得力，享受與夥伴並肩服事的喜樂！' },
+    { id:'congregation', name:'會眾', animal:'台灣石虎', english:'FORMOSAN LEOPARD CAT', cutout:'assets/leopardcat_cutout.png', igCard:'assets/ig_card_congregation.png', standOffset:58,
+      trait:'帶著好奇與期待，勇敢探索生命的新可能。',
+      p1:'謝謝你選擇來到這裡，成為 Hope 的一份子。無論你是剛開始認識教會，還是已經在這裡一段時間，我們都很珍惜能與你一起走這段旅程。或許你還有許多問題，也正在尋找適合自己的步調，但你不需要急著弄清楚所有事情。',
+      highlight:'新的季節，你可以帶著真實的自己，按照自己的步伐繼續向前。',
+      p2:'願你在這裡找到歸屬、建立真實的關係，也一步步發現神為你預備的美好！',
       action:'現在就空下 12/5-12/6 的週末行事曆！發揮探索精神，邀請一位還沒來過教會的朋友，一起見證 Welcome Home 首週主日。',
-      encouragement:'每一次的跨越，神都預備了新的恩典。帶著你如石虎般的好奇與敞開，期待在這個全新的空間裡，看見神要對你說的新故事。' }
+      encouragement:'謝謝你選擇來到這裡，成為 Hope 的一份子。無論你是剛開始認識教會，還是已經在這裡一段時間，我們都很珍惜能與你一起走這段旅程。或許你還有許多問題，也正在尋找適合自己的步調，但你不需要急著弄清楚所有事情。新的季節，你可以帶著真實的自己，按照自己的步伐繼續向前。願你在這裡找到歸屬、建立真實的關係，也一步步發現神為你預備的美好！' }
   ];
 
   var TOPICS = [
@@ -831,10 +836,12 @@
     if(!bg) return { min:-STAGE.spacing*3, max:STAGE.spacing*3 };
     return { min: bg.minX - bg.baseX, max: bg.maxX - bg.baseX };
   }
-  canvas.addEventListener('pointerdown', function(e){ Q.isDragging=true; Q.dragStartX=e.clientX; Q.cameraStartX=Q.cameraX; hideDragHint(); });
+  canvas.addEventListener('pointerdown', function(e){ Q.isDragging=true; Q.dragStartX=e.clientX; Q.cameraStartX=Q.cameraX; });
   window.addEventListener('pointermove', function(e){
     if(!Q.isDragging) return;
     var dx = e.clientX - Q.dragStartX;
+    // 只有真的滑動超過一點距離才算「拖曳」，避免單純點一下就把提示關掉、使用者根本沒看到
+    if(Math.abs(dx) > 8) hideDragHint();
     var r = cameraRange();
     Q.targetCameraX = Math.max(r.min, Math.min(r.max, Q.cameraStartX + dx));
   });
@@ -842,7 +849,7 @@
 
   /* ================= DRAG HINT ================= */
   var dragHintEl = $('drag-hint');
-  var dragHintTimer = setTimeout(hideDragHint, 4000);
+  var dragHintTimer = setTimeout(hideDragHint, 6000);
   function hideDragHint(){
     clearTimeout(dragHintTimer);
     dragHintEl.classList.add('hide');
@@ -1139,7 +1146,7 @@
     }
     var encTitleEl = $('result-encourage-title');
     if(encTitleEl){
-      encTitleEl.textContent = '給' + role.name + '的悄悄話';
+      encTitleEl.textContent = '給' + name + '的一句話';
     }
     var p1El = $('result-encourage-p1');
     if(p1El) p1El.textContent = role.p1;
