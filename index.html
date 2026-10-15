@@ -599,14 +599,23 @@
     // 寬度本身也要封頂，不然桌機超寬螢幕（w 動輒 1500~2500px）會讓角色無限跟著螢幕寬度放大
     var widthFactor = Math.min(1.3, w / 760);
     STAGE.scale = Math.max(0.8, Math.min(2.5, widthFactor * charFactor));
-    STAGE.anchorX = w * 0.78;
+    // 講者站在講台錨點再往右一些的位置（麥克風旁），不是正中央
+    STAGE.speakerOffsetX = 34 * STAGE.scale;
+    // anchorX 預設是螢幕 78% 處，但角色放大後，加上 speakerOffsetX 跟最寬的 standOffset（58），
+    // 右邊可能已經沒有空間畫完整隻動物，導致講者被螢幕邊緣切掉一截。
+    // 這裡用最寬的角色（石虎展開姿勢，寬高比約 0.82）去反推右側至少要留多少空間，
+    // 確保不管哪個角色上台、不管螢幕多窄長，講者都完整露在畫面裡，不會被切到。
+    var speakerTargetH = 230 * STAGE.scale * 1.08;
+    var widestSpeakerHalfW = (speakerTargetH * 0.82) / 2;
+    var maxStandOffset = 58 * STAGE.scale;
+    var rightSafePad = 14 * STAGE.scale;
+    var maxAnchorX = w - STAGE.speakerOffsetX - maxStandOffset - widestSpeakerHalfW - rightSafePad;
+    STAGE.anchorX = Math.max(w * 0.55, Math.min(w * 0.78, maxAnchorX));
     STAGE.anchorY = h * 0.70;
     STAGE.spacing = 192 * STAGE.scale; // 要大於排隊動物實際畫出的寬度，避免互相重疊黏在一起
     STAGE.exitX = (STAGE.w - STAGE.anchorX) + 170 * STAGE.scale;
     // 排隊的人站在階梯下方、前景那排木頭樹墩的高度，講台在階梯頂端；輪到才走上台階發言
     STAGE.queueY = h * 0.20;
-    // 講者站在講台錨點再往右一些的位置（麥克風旁），不是正中央
-    STAGE.speakerOffsetX = 34 * STAGE.scale;
   }
 
   // 只有第 0 位（講者）站上講台 y=0；其餘排隊者都停在階梯下方 y=STAGE.queueY
