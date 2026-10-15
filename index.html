@@ -188,11 +188,20 @@
   .sub-opt.sel .dot::after{ content:''; display:block; width:4px; height:8px; border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg); margin-top:-2px; }
 
   /* ---------------- 專屬同行結果頁 (6 大區塊) ---------------- */
-  .modal-result{ width:100%; max-width:480px; max-height:88vh; max-height:88dvh; background:#FCFAF6; border-radius:28px; box-shadow:0 25px 60px rgba(10,18,6,0.35); overflow:hidden; display:flex; flex-direction:column; border:1px solid rgba(255,255,255,0.85); }
+  .modal-result{ position:relative; width:100%; max-width:480px; max-height:88vh; max-height:88dvh; background:#FCFAF6; border-radius:28px; box-shadow:0 25px 60px rgba(10,18,6,0.35); overflow:hidden; display:flex; flex-direction:column; border:1px solid rgba(255,255,255,0.85); }
   .modal-result-head{ padding:22px 24px 14px; display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid rgba(40,50,30,0.06); flex:none; }
   .result-head-title{ font-size:20.5px; font-weight:900; line-height:1.35; color:var(--ink); letter-spacing:-0.01em; }
   .result-head-sub{ font-size:13px; color:var(--ink-soft); margin-top:5px; line-height:1.45; }
   .modal-result-body{ padding:16px 24px 85px !important; display:flex !important; flex-direction:column !important; gap:22px !important; overflow-y:auto !important; -webkit-overflow-scrolling:touch !important; flex:1 1 auto !important; min-height:0 !important; }
+
+  /* 結果頁內容較長，加個「還能往下滑」的提示，開啟後幾秒或使用者一滑動就消失 */
+  .result-scroll-fade{ position:absolute; left:0; right:0; bottom:0; height:70px; background:linear-gradient(to bottom, rgba(252,250,246,0), #FCFAF6 80%); pointer-events:none; z-index:4; opacity:1; transition:opacity .35s ease; }
+  .result-scroll-fade.hide{ opacity:0; }
+  .result-scroll-hint{ position:absolute; left:50%; bottom:14px; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:3px; pointer-events:none; z-index:5; opacity:1; transition:opacity .35s ease; }
+  .result-scroll-hint.hide{ opacity:0; }
+  .result-scroll-hint span{ font-size:11.5px; font-weight:700; color:var(--ink-soft); background:rgba(255,255,255,0.92); border:1px solid rgba(40,50,30,0.1); padding:4px 12px; border-radius:999px; box-shadow:0 4px 12px rgba(10,18,6,0.12); }
+  .result-scroll-hint svg{ animation:resultScrollBounce 1.3s ease-in-out infinite; }
+  @keyframes resultScrollBounce{ 0%,100%{ transform:translateY(0); opacity:.8 } 50%{ transform:translateY(6px); opacity:1 } }
 
   /* 區塊 2：你的專屬同行圖卡 */
   .result-card-section{ display:flex; flex-direction:column; align-items:center; }
@@ -438,10 +447,15 @@
           <path d="M5 45 Q30 42 75 46" stroke="#8D9B87" stroke-width="1.5" stroke-dasharray="3,3"/>
         </svg>
         <div class="result-next-title">下一步｜邀請更多人一起同行</div>
-        <div class="result-next-body">
+        <div class="result-next-body" id="result-next-body">
           邀請一位你在乎的朋友，也來分享他的聲音。讓我們一起走進教會的新季節！
         </div>
       </div>
+    </div>
+    <div class="result-scroll-fade" id="result-scroll-fade"></div>
+    <div class="result-scroll-hint" id="result-scroll-hint">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5B6350" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 10 12 16 18 10"></polyline></svg>
+      <span>往下滑看更多</span>
     </div>
   </div>
 </div>
@@ -1036,6 +1050,26 @@
     if(e.target === ugcOverlay) ugcOverlay.classList.remove('open');
   });
 
+  // 結果頁內容分 6 大區塊、一開始只看得到前面一小段，提示使用者還能往下滑，滑動一次或幾秒後自動消失
+  var resultScrollFadeEl = $('result-scroll-fade');
+  var resultScrollHintEl = $('result-scroll-hint');
+  var resultModalBodyEl = document.querySelector('.modal-result-body');
+  var resultScrollHintTimer = null;
+  function hideResultScrollHint(){
+    if(resultScrollFadeEl) resultScrollFadeEl.classList.add('hide');
+    if(resultScrollHintEl) resultScrollHintEl.classList.add('hide');
+    if(resultScrollHintTimer){ clearTimeout(resultScrollHintTimer); resultScrollHintTimer = null; }
+  }
+  function showResultScrollHint(){
+    if(resultScrollFadeEl) resultScrollFadeEl.classList.remove('hide');
+    if(resultScrollHintEl) resultScrollHintEl.classList.remove('hide');
+    if(resultScrollHintTimer) clearTimeout(resultScrollHintTimer);
+    resultScrollHintTimer = setTimeout(hideResultScrollHint, 4500);
+  }
+  if(resultModalBodyEl){
+    resultModalBodyEl.addEventListener('scroll', hideResultScrollHint, { passive:true });
+  }
+
   // 5 張 igCard 素材本身是固定美術圖，角色那顆膠囊（例如「・小組長」）是連文字一起畫進圖片的，
   // 不會因為讀到使用者姓名就自動更新。這裡用 canvas 把膠囊區域蓋掉、重新畫一顆「姓名・角色」膠囊上去，
   // 讓下載到的圖卡真的帶有填寫者本人的名字。座標是依照素材固定的 941x1672 比例換算，素材尺寸不變就不會跑版。
@@ -1113,8 +1147,11 @@
     if(hlEl) hlEl.textContent = role.highlight;
     var p2El = $('result-encourage-p2');
     if(p2El) p2El.textContent = role.p2;
+    var nextBodyEl = $('result-next-body');
+    if(nextBodyEl) nextBodyEl.textContent = role.action || nextBodyEl.textContent;
 
     ugcOverlay.classList.add('open');
+    showResultScrollHint();
   }
 
   var resultDownloadBtn = $('result-download-btn');
