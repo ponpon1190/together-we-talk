@@ -1080,15 +1080,18 @@
     resultModalBodyEl.addEventListener('scroll', hideResultScrollHint, { passive:true });
   }
 
-  // 5 張 igCard 素材本身是固定美術圖，膠囊（例如「・小組長」）跟裡面的角色文字都已經畫在圖片裡、維持原樣不動。
-  // 這裡完全不碰、不重畫那顆膠囊，只在「・角色」左邊本來就留白的空間裡，把填寫者的姓名加上去。
-  // 空白區的座標是量每張圖實際留白的位置算出來的（941x1672 比例，素材尺寸不變就不會跑版）。
-  var RESULT_NAME_SLOT = {
-    serving_lead: { x0:450, y0:1040, x1:608, y1:1103 },
-    leader:       { x0:475, y0:1046, x1:607, y1:1111 },
-    member:       { x0:445, y0:1053, x1:623, y1:1120 },
-    volunteer:    { x0:450, y0:1073, x1:617, y1:1140 },
-    congregation: { x0:460, y0:1048, x1:623, y1:1115 }
+  // 5 張 igCard 素材本身是固定美術圖，角色那顆膠囊（例如「・小組長」）是連文字一起畫進圖片的，
+  // 不會因為讀到使用者姓名就自動更新。這裡用 canvas 把膠囊區域蓋掉、重新畫一顆「姓名・角色」膠囊上去，
+  // 讓下載到的圖卡真的帶有填寫者本人的名字。座標是依照素材固定的 941x1672 比例換算，素材尺寸不變就不會跑版。
+  // 姓名跟角色當成同一組文字一起置中畫出來，才能保證兩者對齊在同一條基線上（分開畫會有高低落差）。
+  // 每張圖原本膠囊的位置都不太一樣（量過 5 張圖實際的框線），所以改成各自對應自己原本的框，
+  // 不再用同一個偏大的安全範圍蓋過去——不然會蓋到上面的英文名或蓋到下面的金句框。
+  var RESULT_PILL_BOX = {
+    serving_lead: { x0:430, y0:1040, x1:765, y1:1103 },
+    leader:       { x0:455, y0:1046, x1:775, y1:1111 },
+    member:       { x0:425, y0:1053, x1:770, y1:1120 },
+    volunteer:    { x0:430, y0:1073, x1:795, y1:1140 },
+    congregation: { x0:440, y0:1048, x1:790, y1:1115 }
   };
   function buildResultCardDataURL(role, name, cb){
     var img = new Image();
@@ -1100,23 +1103,37 @@
       c.drawImage(img, 0, 0, canvas.width, canvas.height);
 
       var sx = canvas.width/941, sy = canvas.height/1672;
-      var slot = RESULT_NAME_SLOT[role.id] || RESULT_NAME_SLOT.leader;
-      var slotX = slot.x0*sx, slotY = slot.y0*sy;
-      var slotW = (slot.x1-slot.x0)*sx, slotH = (slot.y1-slot.y0)*sy;
-      var cx = slotX + slotW/2, cy = slotY + slotH/2;
+      var box = RESULT_PILL_BOX[role.id] || RESULT_PILL_BOX.leader;
+      var pillX = box.x0*sx, pillY = box.y0*sy;
+      var pillW = (box.x1-box.x0)*sx, pillH = (box.y1-box.y0)*sy;
+      var cx = pillX + pillW/2, cy = pillY + pillH/2;
 
-      // 姓名字數不一，字級自動縮小到能放進這塊原本就留白的區域，不會超出去蓋到「・角色」那幾個字
-      var label = name || '朋友';
+      c.save();
+      // 先用接近原本膠囊底色的實色蓋掉舊文字，範圍就是原本那顆膠囊自己的大小，不會超出去
+      c.fillStyle = 'rgba(28,30,20,0.96)';
+      roundRect(c, pillX, pillY, pillW, pillH, pillH/2);
+      c.fill();
+      c.fillStyle = 'rgba(40,43,28,0.78)';
+      roundRect(c, pillX, pillY, pillW, pillH, pillH/2);
+      c.fill();
+      c.strokeStyle = 'rgba(255,255,255,0.22)';
+      c.lineWidth = 1.5*sx;
+      roundRect(c, pillX, pillY, pillW, pillH, pillH/2);
+      c.stroke();
+
+      // 姓名加角色可能比原本「・角色」這幾個字長，字級自動縮小到能放進原本的框，不會讓膠囊變寬去擠到旁邊
+      var label = (name || '朋友') + '・' + role.name;
+      var padX = 20*sx;
+      var maxTextW = pillW - padX*2;
       var fontPx = Math.round(26*sy);
-      var minFontPx = Math.round(13*sy);
+      var minFontPx = Math.round(14*sy);
       c.textAlign = 'center'; c.textBaseline = 'middle';
       do {
         c.font = '700 ' + fontPx + 'px "Noto Sans TC", sans-serif';
-        if(c.measureText(label).width <= slotW || fontPx <= minFontPx) break;
+        if(c.measureText(label).width <= maxTextW || fontPx <= minFontPx) break;
         fontPx -= 1;
       } while(true);
 
-      c.save();
       c.fillStyle = '#ffffff';
       c.fillText(label, cx, cy + 1*sy);
       c.restore();
