@@ -1036,19 +1036,65 @@
     if(e.target === ugcOverlay) ugcOverlay.classList.remove('open');
   });
 
+  // 5 張 igCard 素材本身是固定美術圖，角色那顆膠囊（例如「・小組長」）是連文字一起畫進圖片的，
+  // 不會因為讀到使用者姓名就自動更新。這裡用 canvas 把膠囊區域蓋掉、重新畫一顆「姓名・角色」膠囊上去，
+  // 讓下載到的圖卡真的帶有填寫者本人的名字。座標是依照素材固定的 941x1672 比例換算，素材尺寸不變就不會跑版。
+  function buildResultCardDataURL(role, name, cb){
+    var img = new Image();
+    img.onload = function(){
+      var canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth || 941;
+      canvas.height = img.naturalHeight || 1672;
+      var c = canvas.getContext('2d');
+      c.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      var sx = canvas.width/941, sy = canvas.height/1672;
+      var eraseX = 445*sx, eraseY = 1040*sy, eraseW = (855-445)*sx, eraseH = (1140-1040)*sy;
+      c.save();
+      c.fillStyle = 'rgba(30,32,20,0.95)';
+      roundRect(c, eraseX, eraseY, eraseW, eraseH, eraseH*0.42);
+      c.fill();
+
+      var label = (name || '朋友') + '・' + role.name;
+      c.font = '700 ' + Math.round(30*sy) + 'px "Noto Sans TC", sans-serif';
+      var textW = c.measureText(label).width;
+      var padX = 34*sx;
+      var pillW = Math.min(eraseW - 10*sx, Math.max(230*sx, textW + padX*2));
+      var pillH = 56*sy;
+      var pillX = eraseX + eraseW/2 - pillW/2;
+      var pillY = eraseY + eraseH/2 - pillH/2;
+      c.fillStyle = 'rgba(40,43,28,0.82)';
+      c.strokeStyle = 'rgba(255,255,255,0.25)';
+      c.lineWidth = 1.5*sx;
+      roundRect(c, pillX, pillY, pillW, pillH, pillH/2);
+      c.fill(); c.stroke();
+
+      c.fillStyle = '#ffffff';
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText(label, eraseX + eraseW/2, eraseY + eraseH/2 + 1*sy);
+      c.restore();
+
+      cb(canvas.toDataURL('image/png'));
+    };
+    img.onerror = function(){ cb(role.igCard); };
+    img.src = role.igCard;
+  }
+
   function openUgc(role){
     if(!role) return;
     var name = state.name || '朋友';
-    var imgEl = $('result-card-img');
-    if(imgEl){
-      imgEl.src = role.igCard;
-      imgEl.alt = name + ' 的專屬同行圖卡';
-    }
-    var dlBtn = $('result-download-btn');
-    if(dlBtn){
-      dlBtn.href = role.igCard;
-      dlBtn.setAttribute('download', '一起聽見_' + name + '_' + role.animal + '.png');
-    }
+    buildResultCardDataURL(role, name, function(dataUrl){
+      var imgEl = $('result-card-img');
+      if(imgEl){
+        imgEl.src = dataUrl;
+        imgEl.alt = name + ' 的專屬同行圖卡';
+      }
+      var dlBtn = $('result-download-btn');
+      if(dlBtn){
+        dlBtn.href = dataUrl;
+        dlBtn.setAttribute('download', '一起聽見_' + name + '_' + role.animal + '.png');
+      }
+    });
     var roleTitleEl = $('result-role-title');
     if(roleTitleEl){
       roleTitleEl.textContent = name + '，你是' + role.animal + '！';
