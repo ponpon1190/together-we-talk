@@ -195,6 +195,9 @@
   .result-head-title{ font-size:20.5px; font-weight:900; line-height:1.35; color:var(--ink); letter-spacing:-0.01em; }
   .result-head-sub{ font-size:13px; color:var(--ink-soft); margin-top:5px; line-height:1.45; }
   .modal-result-body{ padding:16px 24px 85px !important; display:flex !important; flex-direction:column !important; gap:22px !important; overflow-y:auto !important; -webkit-overflow-scrolling:touch !important; flex:1 1 auto !important; min-height:0 !important; }
+  /* flex 版面下，子區塊只要帶 overflow:hidden（例如裝飾圖示的區塊），瀏覽器會把它的自動最小高度當成 0，
+     結果容器被 flex-shrink 硬壓縮到比實際內容還矮，下面的文字會被裁掉卻看不出原因。固定讓每個區塊維持原本內容高度。 */
+  .modal-result-body > *{ flex-shrink:0; }
 
   /* 結果頁內容較長，加個「還能往下滑」的提示，開啟後幾秒或使用者一滑動就消失 */
   .result-scroll-fade{ position:absolute; left:0; right:0; bottom:0; height:70px; background:linear-gradient(to bottom, rgba(252,250,246,0), #FCFAF6 80%); pointer-events:none; z-index:4; opacity:1; transition:opacity .35s ease; }
