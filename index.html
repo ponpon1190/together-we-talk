@@ -75,7 +75,8 @@
   .hud-header{ pointer-events:auto; max-width:720px; margin:0 auto; width:100%; display:flex; flex-direction:column; gap:10px; }
   .brand-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
   .brand-pill{ display:flex; align-items:center; gap:12px; background:var(--glass-strong); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); padding:8px 18px 8px 10px; border-radius:999px; border:1px solid var(--glass-br); box-shadow:0 4px 16px rgba(40,48,28,0.08); }
-  .brand-mark{ width:38px; height:38px; border-radius:50%; background:var(--sage); color:#fff; display:flex; align-items:center; justify-content:center; font-size:16px; font-family:var(--font-display); font-weight:700; flex:none; }
+  .brand-mark{ width:38px; height:38px; border-radius:50%; background:#FFCB37; overflow:hidden; display:flex; align-items:center; justify-content:center; flex:none; }
+  .brand-mark img{ width:100%; height:100%; object-fit:cover; display:block; }
   .brand-titles{ display:flex; flex-direction:column; line-height:1.2 }
   .brand-titles b{ font-family:var(--font-display); font-size:16.5px; font-weight:700 }
   .brand-titles span{ font-family:var(--font-label); font-size:11px; letter-spacing:.14em; color:var(--ink-soft) }
@@ -288,7 +289,7 @@
   <header class="hud-header">
     <div class="brand-row">
       <div class="brand-pill">
-        <div class="brand-mark">起</div>
+        <div class="brand-mark"><img src="assets/brand_logo.png" alt="THE HOPE CHURCH"></div>
         <div class="brand-titles"><b>一起聽見</b><span>THE HOPE CHURCH · PHASE 1</span></div>
       </div>
       <div class="filter-wrap">
