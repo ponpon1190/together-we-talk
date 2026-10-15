@@ -774,12 +774,17 @@
     if(!actor.isSpeakerSlot && Math.abs(actor.x)>40*STAGE.scale){
       ctx.save();
       var role = byId(ROLES, actor.roleId) || ROLES[0];
+      // 排隊中的動物也顯示「姓名・角色」，不是只有角色，跟講台上billboard的格式一致
+      var tagLabel = (actor.name || '匿名家人') + '・' + role.name;
       var tagY = footY - targetH - 18*STAGE.scale;
-      var tw = 92*STAGE.scale, th = 23*STAGE.scale;
+      var th = 23*STAGE.scale;
+      ctx.font = '700 '+Math.max(11,Math.round(12.5*STAGE.scale))+'px "Noto Sans TC", sans-serif';
+      var tagTextW = ctx.measureText(tagLabel).width;
+      var tw = Math.max(92*STAGE.scale, tagTextW + 24*STAGE.scale);
       ctx.fillStyle='rgba(255,255,255,0.88)'; ctx.strokeStyle='rgba(46,53,36,0.15)'; ctx.lineWidth=1;
       roundRect(ctx, screenX-tw/2, tagY-th/2, tw, th, th/2); ctx.fill(); ctx.stroke();
-      ctx.fillStyle='#2E3524'; ctx.font='700 '+Math.max(11,Math.round(12.5*STAGE.scale))+'px "Noto Sans TC", sans-serif'; ctx.textAlign='center';
-      ctx.fillText(role.name, screenX, tagY+3*STAGE.scale);
+      ctx.fillStyle='#2E3524'; ctx.textAlign='center';
+      ctx.fillText(tagLabel, screenX, tagY+3*STAGE.scale);
       ctx.restore();
     }
   }
