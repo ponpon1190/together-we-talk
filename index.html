@@ -312,8 +312,8 @@
       <div class="step" data-step="4" hidden>
         <div class="note">此題將與你關心的議題一同登上<b>森林講台</b>，和大家一起發聲！</div>
         <div class="field">
-          <textarea id="q4-input" rows="2" maxlength="20" placeholder="寫下一句激勵彼此的話，一起為新季節打氣！"></textarea>
-          <div class="counter"><span id="q4-count">0</span>/20</div>
+          <textarea id="q4-input" rows="3" maxlength="50" placeholder="寫下一句激勵彼此的話，一起為新季節打氣！"></textarea>
+          <div class="counter"><span id="q4-count">0</span>/50</div>
         </div>
       </div>
       <div class="step" data-step="5" hidden>
@@ -938,9 +938,11 @@
       var panelX=56, panelW=W-112, panelY=150;
       c.textAlign='left'; c.font='700 30px "Noto Sans TC", sans-serif'; c.fillStyle='#C99A42';
       c.fillText('神正挑旺他', panelX+34, panelY+58);
-      c.font='700 44px "Noto Serif TC", serif'; c.fillStyle='#ffffff';
       var q4 = state.q4 || '一起走進新的季節';
-      var lineH=58;
+      var fontSize = q4.length > 32 ? 36 : (q4.length > 20 ? 40 : 44);
+      var lineH = Math.round(fontSize * 1.35);
+      c.font = '700 ' + fontSize + 'px "Noto Serif TC", serif';
+      c.fillStyle = '#ffffff';
       var lines = wrapText(c, q4, panelX+34, panelY+118, panelW-68, lineH);
       var panelH = 150 + lines*lineH - 20;
       c.save(); c.globalCompositeOperation='destination-over';
