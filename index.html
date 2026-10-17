@@ -189,6 +189,20 @@
   .field input:focus, .field textarea:focus{ border-color:var(--sage) }
   .counter{ font-size:12px; color:var(--ink-soft); text-align:right; font-family:var(--font-label); }
 
+  .reply-choice{ display:flex; flex-direction:column; gap:8px; margin-top:14px; }
+  .reply-choice-label{ font-size:13.5px; font-weight:700; color:var(--ink); }
+  .reply-opt{ padding:10px 12px; border-radius:var(--radius-sm); background:rgba(255,255,255,0.5); border:1.5px solid var(--line); cursor:pointer; display:flex; align-items:flex-start; gap:10px; transition:all .15s ease; user-select:none; }
+  :root[data-theme="dark"] .reply-opt{ background:rgba(255,255,255,0.05) }
+  .reply-opt .radio{ width:16px; height:16px; margin-top:2px; border-radius:50%; border:1.5px solid var(--ink-soft); flex:none; display:flex; align-items:center; justify-content:center; transition:all .15s ease; box-sizing:border-box; }
+  .reply-opt-title{ font-size:14px; font-weight:700; color:var(--ink); line-height:1.4; }
+  .reply-opt-desc{ font-size:12px; font-weight:400; color:var(--ink-soft); line-height:1.45; margin-top:2px; }
+  .reply-opt.sel{ border-color:var(--sage); background:rgba(86,114,76,0.14); }
+  .reply-opt.sel .radio{ border-color:var(--sage); }
+  .reply-opt.sel .radio::after{ content:''; display:block; width:8px; height:8px; border-radius:50%; background:var(--sage); }
+  .email-field{ animation:slide .3s ease; margin-top:2px; padding:11px 12px; border-radius:var(--radius-sm); background:var(--olive-panel-soft); }
+  .email-hint{ font-size:11.5px; color:var(--ink-soft); line-height:1.5; display:flex; align-items:center; gap:5px; }
+  .email-hint svg{ flex:none; }
+
   .topic-list{ display:flex; flex-direction:column; gap:6px; }
   .topic-row{ display:flex; align-items:center; gap:9px; padding:10px 12px; border-radius:var(--radius-md); background:var(--glass-strong); border:1.5px solid var(--line); cursor:pointer; }
   .topic-row .ico{ font-size:16px }
@@ -296,6 +310,8 @@
     .note, .field label, .topic-row .tx{ font-size:13px; line-height:1.45; }
     .sub-opt .opt-title{ font-size:13.5px; }
     .sub-opt .opt-desc{ font-size:11.5px; }
+    .reply-opt-title{ font-size:13.5px; }
+    .reply-opt-desc{ font-size:11.5px; }
     .counter{ font-size:11.5px; }
   }
 </style>
@@ -399,6 +415,28 @@
         <div class="field">
           <textarea id="q5-input" rows="4" maxlength="100" placeholder="生活的挑戰、適應的焦慮，寫在這裡，我們陪你一起面對..."></textarea>
           <div class="counter"><span id="q5-count">0</span>/100</div>
+        </div>
+        <div class="reply-choice" id="reply-choice">
+          <div class="reply-choice-label">你願意收到牧者團隊的禱告回覆嗎？</div>
+          <div class="reply-opt" id="reply-opt-yes" data-value="yes">
+            <span class="radio"></span>
+            <div>
+              <div class="reply-opt-title">我願意收到禱告回覆</div>
+              <div class="reply-opt-desc">請留下 Email，讓牧者團隊可以透過文字回覆，與你一起守望。</div>
+            </div>
+          </div>
+          <div class="reply-opt" id="reply-opt-no" data-value="no">
+            <span class="radio"></span>
+            <div>
+              <div class="reply-opt-title">謝謝你們為我代禱即可</div>
+              <div class="reply-opt-desc">不需要個別回覆，謝謝牧者團隊為我守望禱告。</div>
+            </div>
+          </div>
+          <div class="field email-field" id="email-field" hidden>
+            <label for="email-input">你的 Email</label>
+            <input id="email-input" type="email" placeholder="example@email.com">
+            <div class="email-hint"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg><span>Email 僅供牧者團隊寄送禱告回覆使用，不會公開。</span></div>
+          </div>
         </div>
       </div>
     </div>
@@ -997,7 +1035,7 @@
   }
 
   /* ================= QUIZ MODAL ================= */
-  var state = { roleId:null, name:'', topicId:null, subs:[], q3:'', q4:'', q5:'' };
+  var state = { roleId:null, name:'', topicId:null, subs:[], q3:'', q4:'', q5:'', wantsReply:false, email:'' };
   var curStep = 1, TOTAL_STEPS = 5;
   var quizOverlay = $('quiz-overlay');
   var titles = [
@@ -1089,6 +1127,20 @@
   bindCounter('q4-input','q4-count','q4');
   bindCounter('q5-input','q5-count','q5');
 
+  var replyOptYes = $('reply-opt-yes'), replyOptNo = $('reply-opt-no'), emailField = $('email-field'), emailInput = $('email-input');
+  function setWantsReply(wants){
+    state.wantsReply = wants;
+    replyOptYes.classList.toggle('sel', wants);
+    replyOptNo.classList.toggle('sel', !wants);
+    emailField.hidden = !wants;
+  }
+  replyOptYes.addEventListener('click', function(){ setWantsReply(true); });
+  replyOptNo.addEventListener('click', function(){ setWantsReply(false); });
+  emailInput.addEventListener('input', function(){ state.email = emailInput.value; });
+  setWantsReply(false);
+
+  function isValidEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()); }
+
   var stepsEls = document.querySelectorAll('.step');
   function showStep(n){
     stepsEls.forEach(function(s){ s.hidden = (parseInt(s.getAttribute('data-step'),10)!==n); });
@@ -1101,7 +1153,7 @@
     if(n===1) return !!state.roleId && state.name.trim().length>0;
     if(n===2) return !!state.topicId && Array.isArray(state.subs) && state.subs.length>0;
     if(n===4) return state.q4.trim().length>0;
-    if(n===5) return state.q5.trim().length>0;
+    if(n===5) return state.q5.trim().length>0 && (!state.wantsReply || isValidEmail(state.email));
     return true;
   }
   $('quiz-next').addEventListener('click', function(){
@@ -1343,7 +1395,8 @@
     var payload = {
       name: state.name, roleId: state.roleId, roleName: role.name,
       topicPrimary: topic ? topic.label : '', topicSecondary: (state.subs && state.subs.length) ? state.subs.join('、') : '',
-      q3Question: state.q3||'', q4Faith: state.q4||'', q5Prayer: state.q5||''
+      q3Question: state.q3||'', q4Faith: state.q4||'', q5Prayer: state.q5||'',
+      wantsReply: state.wantsReply ? '是' : '否', email: state.wantsReply ? (state.email||'') : ''
     };
     fetch(GAS_ENDPOINT, {
       method: 'POST',
