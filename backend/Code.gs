@@ -45,6 +45,8 @@ function doPost(e) {
     const q3Question = (data.q3Question || '').trim().substring(0, 100);
     const q4Faith = (data.q4Faith || '').trim().substring(0, 50);
     const q5Prayer = (data.q5Prayer || '').trim().substring(0, 200);
+    const wantsReply = data.wantsReply === '是' ? '是' : '否';
+    const email = wantsReply === '是' ? (data.email || '').trim().substring(0, 100) : '';
     const status = '已核准'; // 預設核准，同工可手動改為「隱藏」
 
     // 1. 寫入【所有問卷原始紀錄】
@@ -59,7 +61,9 @@ function doPost(e) {
       q3Question,
       q4Faith,
       q5Prayer,
-      status
+      status,
+      wantsReply,
+      email
     ]);
 
     // 2. 寫入【同行包_FAQ題庫】(去識別化：不含姓名、無 Q5 代禱)
@@ -82,7 +86,9 @@ function doPost(e) {
         name,
         roleName,
         q5Prayer,
-        '待守望' // 牧養跟進狀態
+        '待守望', // 牧養跟進狀態
+        wantsReply,
+        email
       ]);
     }
 
@@ -125,7 +131,7 @@ function doGet(e) {
         publicList.push({
           name: row[1] || '匿名家人',
           roleId: row[2] || 'congregation',
-          roleName: row[3] || '會眾朋友',
+          roleName: row[3] || '會眾',
           topicPrimary: row[4] || '',
           topicSecondary: row[5] || '',
           q4Faith: row[7] || '',
@@ -157,9 +163,10 @@ function initSheetsIfNotExist(ss) {
   if (!s1) {
     s1 = ss.insertSheet(SHEET_NAMES.ALL_RECORDS);
     const headers1 = [
-      '送出時間', '填答者姓名', '角色代碼', '角色稱謂', 
-      '核心議題', '具體子選項', 'Q3 實務敲碗(50字)', 
-      'Q4 屬靈看見(20字)', 'Q5 守望代禱(保密)', '審核狀態'
+      '送出時間', '填答者姓名', '角色代碼', '角色稱謂',
+      '核心議題', '具體子選項', 'Q3 實務敲碗(50字)',
+      'Q4 屬靈看見(20字)', 'Q5 守望代禱(保密)', '審核狀態',
+      '是否願意收到回覆', 'Email'
     ];
     s1.appendRow(headers1);
     s1.getRange(1, 1, 1, headers1.length)
@@ -186,7 +193,7 @@ function initSheetsIfNotExist(ss) {
   let s3 = ss.getSheetByName(SHEET_NAMES.PASTORAL_PRAYER);
   if (!s3) {
     s3 = ss.insertSheet(SHEET_NAMES.PASTORAL_PRAYER);
-    const headers3 = ['填答時間', '填答者姓名', '角色身分', '守望代禱內容(絕對保密)', '牧養關懷狀態'];
+    const headers3 = ['填答時間', '填答者姓名', '角色身分', '守望代禱內容(絕對保密)', '牧養關懷狀態', '是否願意收到回覆', 'Email'];
     s3.appendRow(headers3);
     s3.getRange(1, 1, 1, headers3.length)
       .setBackground('#14281c')
@@ -202,7 +209,7 @@ function getRoleNameById(roleId) {
     'serving_lead': '服事領袖',
     'member': '小組員',
     'volunteer': '服事夥伴',
-    'congregation': '會眾朋友'
+    'congregation': '會眾'
   };
-  return map[roleId] || '會眾朋友';
+  return map[roleId] || '會眾';
 }
