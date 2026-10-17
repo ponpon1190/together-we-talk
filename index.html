@@ -184,11 +184,14 @@
   .topic-row.sel{ border-color:var(--sage); background:rgba(86,114,76,0.16) }
   .sub-wrap{ display:flex; flex-direction:column; gap:6px; animation:slide .3s ease; margin-top:4px; padding-left:2px; }
   @keyframes slide{ from{opacity:0; transform:translateY(-6px)} to{opacity:1; transform:translateY(0)} }
-  .sub-hint{ font-size:12px; font-weight:700; color:var(--sage-deep); padding:2px 2px; }
-  .sub-opt{ padding:9px 12px; border-radius:var(--radius-sm); background:rgba(255,255,255,0.5); border:1.5px solid var(--line); font-size:14px; cursor:pointer; display:flex; align-items:center; gap:10px; transition:all .15s ease; user-select:none; }
+  .sub-guide{ font-size:14.5px; font-weight:800; color:var(--ink); padding:2px 2px 2px; line-height:1.5; }
+  .sub-hint{ font-size:12px; font-weight:700; color:var(--sage-deep); padding:2px 2px 4px; }
+  .sub-opt{ padding:10px 12px; border-radius:var(--radius-sm); background:rgba(255,255,255,0.5); border:1.5px solid var(--line); cursor:pointer; display:flex; align-items:flex-start; gap:10px; transition:all .15s ease; user-select:none; }
   :root[data-theme="dark"] .sub-opt{ background:rgba(255,255,255,0.05) }
-  .sub-opt .dot{ width:16px; height:16px; border-radius:4px; border:1.5px solid var(--ink-soft); flex:none; display:flex; align-items:center; justify-content:center; transition:all .15s ease; box-sizing:border-box; }
-  .sub-opt.sel{ border-color:var(--sage); background:rgba(86,114,76,0.14); font-weight:700; }
+  .sub-opt .dot{ width:16px; height:16px; margin-top:2px; border-radius:4px; border:1.5px solid var(--ink-soft); flex:none; display:flex; align-items:center; justify-content:center; transition:all .15s ease; box-sizing:border-box; }
+  .sub-opt .opt-title{ font-size:14px; font-weight:700; color:var(--ink); line-height:1.4; }
+  .sub-opt .opt-desc{ font-size:12px; font-weight:400; color:var(--ink-soft); line-height:1.45; margin-top:2px; }
+  .sub-opt.sel{ border-color:var(--sage); background:rgba(86,114,76,0.14); }
   .sub-opt.sel .dot{ border-color:var(--sage); background:var(--sage); }
   .sub-opt.sel .dot::after{ content:''; display:block; width:4px; height:8px; border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg); margin-top:-2px; }
 
@@ -278,7 +281,9 @@
     .role-opt .ra{ font-size:11.5px; line-height:1.35; }
     .role-opt .rd{ font-size:11.5px; line-height:1.45; margin-top:2px; }
 
-    .note, .field label, .topic-row .tx, .sub-opt{ font-size:13px; line-height:1.45; }
+    .note, .field label, .topic-row .tx{ font-size:13px; line-height:1.45; }
+    .sub-opt .opt-title{ font-size:13.5px; }
+    .sub-opt .opt-desc{ font-size:11.5px; }
     .counter{ font-size:11.5px; }
   }
 </style>
@@ -521,24 +526,49 @@
   ];
 
   var TOPICS = [
-    { id:'transit', label:'交通與通勤攻略', options:['捷運步行指引','汽機車停車資訊','接駁車與共乘機制','上下車臨停動線'] },
-    { id:'sunday', label:'主日聚會與現場受洗', options:['雙語場次安排','大廳每週現場受洗','場次間隔與交誼緩衝','主日邀約與帶新朋友'] },
-    { id:'family', label:'家庭與 Hope Kids 專區', options:['新教室空間與安全','報到與接送動線','育嬰與推車友善設施','新環境適應與安撫'] },
-    { id:'weekday', label:'週間小組與裝備課程', options:['平日小組場地','實體裝備課程地點','克服距離的牧養心法','平日約談與牧養據點'] },
-    { id:'space', label:'現場空間與交誼生活圈', options:['會後 Hang out 空間','內湖周邊聚餐美食','新朋友迎賓專區','服事同工休息與動線'] }
+    { id:'transit', label:'交通與通勤', guide:'前往內湖新場地，你最在意哪些交通安排？', options:[
+      { title:'大眾運輸與通勤時間', desc:'捷運轉乘、步行距離、整體通勤時間' },
+      { title:'汽機車停車與費用', desc:'周邊停車選擇、停車便利性、長期費用負擔' },
+      { title:'接駁車與共乘安排', desc:'捷運接駁、跨區共乘、交通支援需求' },
+      { title:'長輩與親子接送動線', desc:'臨停上下車、推車移動、無障礙通行' }
+    ] },
+    { id:'sunday', label:'主日聚會與現場受洗', guide:'關於新場地的聚會安排，你最希望了解哪些資訊？', options:[
+      { title:'主日場次調整', desc:'雙語聚會移至週六、週日外語翻譯設備與語言支援' },
+      { title:'週六、週日的 BELONG 與 VF', desc:'不同聚會日的活動安排、報名與參與方式' },
+      { title:'每週現場受洗安排', desc:'受洗報名、預備流程、親友觀禮與小組陪伴' },
+      { title:'新朋友邀約與接待安排', desc:'首次參加的引導、朋友陪同與接待服務' }
+    ] },
+    { id:'family', label:'Hope Kids 與親子家庭', guide:'帶著孩子一起來到內湖新場地，你最在意哪些安排？', options:[
+      { title:'Hope Kids 場次時間', desc:'週六 2PM Hope Kids 開課安排、未來全英文 Hope Kids 的規劃' },
+      { title:'孩子適應新環境', desc:'陌生空間、分離焦慮、現場安撫與陪伴' },
+      { title:'嬰幼兒與親子照顧空間', desc:'親子轉播空間、哺乳室、尿布台與嬰兒推車停放安排' },
+      { title:'Hope Kids 教室與安全規劃', desc:'分齡教室、出入安全、孩子接送與照顧安排' }
+    ] },
+    { id:'weekday', label:'小組聚會與裝備課程', guide:'關於未來小組聚會與裝備課程，你最在意哪些安排？', options:[
+      { title:'週間小組聚會地點', desc:'內湖以外的小組聚會場地、週間開放與使用安排' },
+      { title:'主日小組聚會地點', desc:'新台北分部的小組聚會空間、預約與借用方式' },
+      { title:'小組聚會資源支持', desc:'內湖周邊適合小組聚會的餐廳、咖啡廳與推薦據點' },
+      { title:'裝備課程時間與地點', desc:'門徒的旅程、婚姻的旅程、受洗課程的上課地點、時段與參與方式' }
+    ] },
+    { id:'space', label:'新場地空間與周邊生活', guide:'關於內湖新場地與周邊生活，你最希望了解哪些安排？', options:[
+      { title:'會後 Hang Out 與交流空間', desc:'主日後的聊天區域、休息座位與交誼安排' },
+      { title:'周邊美食與聚餐推薦', desc:'平價餐廳、咖啡廳、適合朋友聚餐的選擇' },
+      { title:'主日服事夥伴休息空間', desc:'服事前後休息、用餐、個人物品放置與預備空間' },
+      { title:'聚會前後的生活便利性', desc:'便利商店、親子活動、等候家人的休憩場所' }
+    ] }
   ];
 
   // demo:true 這幾筆是舞台一開始沒人排隊時用來撐場面的示範資料，不是真人填的，
   // 計算議題比例時要排除，不然會混進假資料裡一起算
   var SAMPLE_SPEECHES = [
-    { name:'雅婷', roleId:'leader', topicId:'transit', sub:'捷運步行指引', faith:'這一步，我們一起走！', question:'捷運站走到新場地大概要幾分鐘？會有指引標示嗎？', demo:true },
-    { name:'志明', roleId:'serving_lead', topicId:'sunday', sub:'大廳每週現場受洗', faith:'相信神預備更大的空間與靈魂收割。', question:'受洗後濕身要去哪裡換裝？教會有預備浴巾嗎？', demo:true },
-    { name:'思涵', roleId:'member', topicId:'space', sub:'內湖周邊聚餐美食', faith:'期待新朋友越來越多，一起吃喝同行。', question:'主日結束後，附近有適合十人以上小組聚餐不趕人的餐廳嗎？', demo:true },
-    { name:'冠宇', roleId:'volunteer', topicId:'family', sub:'報到與接送動線', faith:'用微笑迎接每一個走進來的家人。', question:'Hope Kids 的接送動線會跟大廳主要人流分開嗎？', demo:true },
-    { name:'佳穎', roleId:'congregation', topicId:'weekday', sub:'實體裝備課程地點', faith:'帶著好奇，一起跨入新的恩典。', question:'週間的裝備課程會在內湖新場地，還是原本的地點？', demo:true },
-    { name:'柏翰', roleId:'member', topicId:'family', sub:'新教室空間與安全', faith:'神做奇妙事，一起期待。', question:'新教室的門禁和孩子交接流程會有什麼不同？', demo:true },
-    { name:'詩雅', roleId:'leader', topicId:'sunday', sub:'主日邀約與帶新朋友', faith:'成為他人的祝福，一起得地為業。', question:'如果想邀新朋友來新堂主日，有推薦的場次嗎？', demo:true },
-    { name:'家豪', roleId:'congregation', topicId:'transit', sub:'汽機車停車資訊', faith:'新的季節，新的恩典。', question:'開車去的話，停車場車位夠嗎，需要提前預約嗎？', demo:true }
+    { name:'雅婷', roleId:'leader', topicId:'transit', sub:'大眾運輸與通勤時間', faith:'這一步，我們一起走！', question:'捷運站走到新場地大概要幾分鐘？會有指引標示嗎？', demo:true },
+    { name:'志明', roleId:'serving_lead', topicId:'sunday', sub:'每週現場受洗安排', faith:'相信神預備更大的空間與靈魂收割。', question:'受洗後濕身要去哪裡換裝？教會有預備浴巾嗎？', demo:true },
+    { name:'思涵', roleId:'member', topicId:'space', sub:'周邊美食與聚餐推薦', faith:'期待新朋友越來越多，一起吃喝同行。', question:'主日結束後，附近有適合十人以上小組聚餐不趕人的餐廳嗎？', demo:true },
+    { name:'冠宇', roleId:'volunteer', topicId:'family', sub:'嬰幼兒與親子照顧空間', faith:'用微笑迎接每一個走進來的家人。', question:'Hope Kids 的接送動線會跟大廳主要人流分開嗎？', demo:true },
+    { name:'佳穎', roleId:'congregation', topicId:'weekday', sub:'裝備課程時間與地點', faith:'帶著好奇，一起跨入新的恩典。', question:'週間的裝備課程會在內湖新場地，還是原本的地點？', demo:true },
+    { name:'柏翰', roleId:'member', topicId:'family', sub:'Hope Kids 教室與安全規劃', faith:'神做奇妙事，一起期待。', question:'新教室的門禁和孩子交接流程會有什麼不同？', demo:true },
+    { name:'詩雅', roleId:'leader', topicId:'sunday', sub:'新朋友邀約與接待安排', faith:'成為他人的祝福，一起得地為業。', question:'如果想邀新朋友來新堂主日，有推薦的場次嗎？', demo:true },
+    { name:'家豪', roleId:'congregation', topicId:'transit', sub:'汽機車停車與費用', faith:'新的季節，新的恩典。', question:'開車去的話，停車場車位夠嗎，需要提前預約嗎？', demo:true }
   ];
 
   // 正式串接 Google Apps Script 試算表 Web App 網址
@@ -998,21 +1028,40 @@
 
   function renderSubOptions(topic){
     subWrap.hidden=false; subWrap.innerHTML='';
+    if(topic.guide){
+      var guide = document.createElement('div');
+      guide.className = 'sub-guide';
+      guide.textContent = topic.guide;
+      subWrap.appendChild(guide);
+    }
     var hint = document.createElement('div');
     hint.className = 'sub-hint';
     hint.textContent = '請勾選你關心的具體項目（可複選）：';
     subWrap.appendChild(hint);
     topic.options.forEach(function(opt){
       var o=document.createElement('div');
-      o.className='sub-opt' + (state.subs.indexOf(opt)!==-1 ? ' sel' : '');
-      o.innerHTML='<span class="dot"></span><span>'+opt+'</span>';
+      o.className='sub-opt' + (state.subs.indexOf(opt.title)!==-1 ? ' sel' : '');
+      var dot = document.createElement('span');
+      dot.className = 'dot';
+      var textWrap = document.createElement('div');
+      var titleEl = document.createElement('span');
+      titleEl.className = 'opt-title';
+      titleEl.textContent = opt.title;
+      var descEl = document.createElement('span');
+      descEl.className = 'opt-desc';
+      descEl.textContent = opt.desc;
+      textWrap.appendChild(titleEl);
+      textWrap.appendChild(document.createElement('br'));
+      textWrap.appendChild(descEl);
+      o.appendChild(dot);
+      o.appendChild(textWrap);
       o.addEventListener('click', function(){
-        var idx = state.subs.indexOf(opt);
+        var idx = state.subs.indexOf(opt.title);
         if(idx !== -1){
           state.subs.splice(idx, 1);
           o.classList.remove('sel');
         } else {
-          state.subs.push(opt);
+          state.subs.push(opt.title);
           o.classList.add('sel');
         }
       });
