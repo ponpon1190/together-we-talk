@@ -354,18 +354,18 @@
   </footer>
 </div>
 
-<div class="billboard-wrap" id="billboard-wrap">
+<div class="billboard-wrap" id="billboard-wrap" hidden>
   <div class="glass billboard">
     <div class="b-progress-track"><div class="b-progress-bar" id="b-progress"></div></div>
     <div class="b-meta">
       <div class="b-speaker">
-        <span class="b-role" id="b-role">小組長</span>
+        <span class="b-role" id="b-role"></span>
         <div class="b-who">
-          <span class="b-name" id="b-name">雅婷</span>
-          <span class="b-species" id="b-species">台灣藍鵲</span>
+          <span class="b-name" id="b-name"></span>
+          <span class="b-species" id="b-species"></span>
         </div>
       </div>
-      <span class="b-topic" id="b-topic">#交通與通勤攻略</span>
+      <span class="b-topic" id="b-topic"></span>
     </div>
     <div class="b-faith">
       <div class="b-faith-h">神正挑旺他</div>
@@ -613,9 +613,9 @@
     ] }
   ];
 
-  // demo:true 這幾筆是舞台一開始沒人排隊時用來撐場面的示範資料，不是真人填的，
-  // 計算議題比例時要排除，不然會混進假資料裡一起算
-  var SAMPLE_SPEECHES = [
+  // DEMO_SPEECHES 這幾筆是示範資料，只在「尚未設定 GAS_ENDPOINT」的本機開發環境用來撐場面；
+  // 只要正式串接了 Google Apps Script，舞台一律只會顯示真實填答者，絕不混入示範資料。
+  var DEMO_SPEECHES = [
     { name:'雅婷', roleId:'leader', topicId:'transit', sub:'大眾運輸與通勤時間', faith:'這一步，我們一起走！', question:'捷運站走到新場地大概要幾分鐘？會有指引標示嗎？', demo:true },
     { name:'志明', roleId:'serving_lead', topicId:'sunday', sub:'每週現場受洗安排', faith:'相信神預備更大的空間與靈魂收割。', question:'受洗後濕身要去哪裡換裝？教會有預備浴巾嗎？', demo:true },
     { name:'思涵', roleId:'member', topicId:'space', sub:'周邊美食與聚餐推薦', faith:'期待新朋友越來越多，一起吃喝同行。', question:'主日結束後，附近有適合十人以上小組聚餐不趕人的餐廳嗎？', demo:true },
@@ -625,6 +625,7 @@
     { name:'詩雅', roleId:'leader', topicId:'sunday', sub:'新朋友邀約與接待安排', faith:'成為他人的祝福，一起得地為業。', question:'如果想邀新朋友來新堂主日，有推薦的場次嗎？', demo:true },
     { name:'家豪', roleId:'congregation', topicId:'transit', sub:'汽機車停車與費用', faith:'新的季節，新的恩典。', question:'開車去的話，停車場車位夠嗎，需要提前預約嗎？', demo:true }
   ];
+  var SAMPLE_SPEECHES = [];
 
   // 正式串接 Google Apps Script 試算表 Web App 網址
   var GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxgrnBfkKe9rz5vxV7qR2Eu_5Qfn3hrEW-NmH817kh0qaZI42vTwptebVXXPC-lH2OxTA/exec';
@@ -672,7 +673,7 @@
     actors:[], exitingActors:[], speakerActor:null,
     speechDuration:12, speechTimer:0, isPlaying:true, isTransitioning:false,
     cameraX:0, targetCameraX:0, isDragging:false, dragStartX:0, cameraStartX:0,
-    activeTopicId:'all'
+    activeTopicId:'all', cycleIndex:0
   };
 
   // 依手機/視窗寬度即時換算的舞台尺度：講台錨點對齊真實背景圖中的講台位置，
@@ -730,7 +731,8 @@
     return pool.length ? pool : SAMPLE_SPEECHES;
   }
   function initQueueActors(){
-    Q.actors=[]; Q.exitingActors=[];
+    Q.actors=[]; Q.exitingActors=[]; Q.speakerActor=null;
+    if(!SAMPLE_SPEECHES.length){ updateBillboard(); return; }
     var firstRole = byId(ROLES, SAMPLE_SPEECHES[0].roleId);
     var firstX = STAGE.speakerOffsetX + (firstRole && firstRole.standOffset ? firstRole.standOffset : 0) * STAGE.scale;
     var speaker = new StageActor(SAMPLE_SPEECHES[0], firstX, 0);
@@ -739,6 +741,7 @@
       var d = SAMPLE_SPEECHES[i % SAMPLE_SPEECHES.length];
       Q.actors.push(new StageActor(d, -(STAGE.spacing*0.9 + i*STAGE.spacing), STAGE.queueY));
     }
+    Q.cycleIndex = 8 % SAMPLE_SPEECHES.length;
     realignQueue(); Q.speechTimer=0; updateBillboard();
   }
   function advanceQueue(){
@@ -759,10 +762,13 @@
   }
   function replenishTail(){
     if(Q.actors.length>=9) return;
+    var pool = poolForTopic(Q.activeTopicId);
+    if(!pool.length) return;
     var lastIndex = Q.actors.length;
     var baseX = -(STAGE.spacing*0.9 + lastIndex*STAGE.spacing);
-    var pool = poolForTopic(Q.activeTopicId);
-    var data = pool[Math.floor(Math.random()*pool.length)];
+    // 依序輪播真實填答名單；沒有新人填寫時，就從最後一位填答者繼續往回循環，不會跳出隨機或示範資料
+    var data = pool[Q.cycleIndex % pool.length];
+    Q.cycleIndex++;
     var actor = new StageActor(data, baseX - STAGE.spacing*0.7, STAGE.queueY);
     actor.targetX = baseX; actor.targetY = STAGE.queueY;
     Q.actors.push(actor);
@@ -770,18 +776,31 @@
   function enqueueUserActor(data){
     // 1. 存入發聲池前端，確保未來任何時候都能重複輪播出來
     SAMPLE_SPEECHES.unshift(data);
+    var wasEmpty = Q.actors.length === 0;
     // 2. 加入當前隊伍尾端排隊，不粗暴打斷當前正在講話的家人
     var lastIndex = Q.actors.length;
     var baseX = -(STAGE.spacing*0.9 + lastIndex*STAGE.spacing);
     var actor = new StageActor(data, baseX - STAGE.spacing*0.8, STAGE.queueY);
-    actor.targetX = baseX;
-    actor.targetY = STAGE.queueY;
+    actor.targetX = wasEmpty ? STAGE.speakerOffsetX : baseX;
+    actor.targetY = wasEmpty ? 0 : STAGE.queueY;
     Q.actors.push(actor);
+    if(wasEmpty){
+      // 舞台原本空無一人（尚無真實填答者），這位新填答者直接成為講台上的第一位
+      actor.state='speaking'; actor.isSpeakerSlot=true; Q.speakerActor=actor;
+      Q.speechTimer=0; updateBillboard();
+    }
     realignQueue();
   }
 
   function updateBillboard(){
-    var s = Q.speakerActor; if(!s) return;
+    var wrap = $('billboard-wrap');
+    var s = Q.speakerActor;
+    if(!s){
+      // 還沒有任何真實填答者（或資料仍在載入中），絕不能讓舊的示範文字留在畫面上
+      if(wrap) wrap.hidden = true;
+      return;
+    }
+    if(wrap) wrap.hidden = false;
     var role = byId(ROLES, s.roleId); var topic = byId(TOPICS, s.topicId);
     $('b-role').textContent = role ? role.name : '';
     $('b-name').textContent = s.name || '匿名家人';
@@ -1417,6 +1436,8 @@
     });
   }
   function topicIdByLabel(label){ var t=TOPICS.filter(function(x){ return x.label===label; })[0]; return t?t.id:null; }
+  // 只顯示真實填答者：SAMPLE_SPEECHES 一律由這支試算表資料整份取代（不與示範資料混合），
+  // 沒有任何真實填答時舞台保持空場，絕不回退顯示示範人名。
   function loadWallData(){
     if(!GAS_ENDPOINT) return;
     fetch(GAS_ENDPOINT)
@@ -1433,19 +1454,30 @@
               question: ''
             };
           });
-          SAMPLE_SPEECHES = mapped.concat(SAMPLE_SPEECHES);
-          initQueueActors();
-          buildFilterBar();
+          SAMPLE_SPEECHES = mapped;
         }
-      }).catch(function(err){ console.error('GAS GET 失敗:', err); });
+        initQueueActors();
+        buildFilterBar();
+      }).catch(function(err){
+        console.error('GAS GET 失敗:', err);
+        initQueueActors();
+      });
   }
 
   /* ================= INIT ================= */
   function init(){
     resizeCanvas();
     buildFilterBar();
-    loadWallData();
-    initQueueActors();
+    if(GAS_ENDPOINT){
+      // 正式環境：等候試算表真實資料回來才初始化舞台，中途不顯示任何示範/假資料
+      SAMPLE_SPEECHES = [];
+      initQueueActors();
+      loadWallData();
+    } else {
+      // 本機開發、尚未設定 GAS_ENDPOINT 時才使用示範資料撐場面
+      SAMPLE_SPEECHES = DEMO_SPEECHES.slice();
+      initQueueActors();
+    }
     initMyCardButton();
     requestAnimationFrame(renderLoop);
   }
